@@ -13,6 +13,7 @@
 	int yyerror(const char* msj);
 	int yylex(void);
 	fstream fichero;
+	Node nodo;
 	NodoSuma suma;
 	NodoResta resta;
 	NodoMul multi;
@@ -151,15 +152,15 @@ string * nombre;
 
 %%
 ent: 
-	|ent EXIT {YYABORT;}
-	|ent Declaracion ';' {DecOrExp=0;}
-	|ent exp ';'
-	|ent PRINTF ';'
-	|ent FUNC param ')' '{'{string cadena=*$2; string aux=cadena.substr(0,cadena.find("(")); cadena=aux.substr(aux.find(" "));cadena.erase(std::remove(cadena.begin(),cadena.end(),' '),cadena.end()); 			funciones.escribeini(fichero,cadena); enfuncion=1; contadorparametros=0;	
-	} ent RETURN {retu=1;} exp ';' {funciones.escriberet(fichero,$10); retu=0;} '}' {funciones.escribefin(fichero); enfuncion=0;}
-	|ent SCANF ';' {std::reverse(auxscanf.begin(),auxscanf.end()); for(int i=0;i<contadorscanf;i++){ string std=auxscanf[i]; int b; cin>>b; variables[std]=b;}} 
-	|ent IFs 
-	|ent DEFINE ID NUM {if(si==1 || sino==1){variables[*$3]=$4;}}
+	|ent EXIT {	cout<<mainstring<<endl; nodo.finalWrite(fichero,mainstring);YYABORT;}
+	|ent Declaracion ';' {cout<<mainstring<<endl;	DecOrExp=0;}
+	|ent exp ';' {cout<<mainstring<<endl;}
+	|ent PRINTF ';' {cout<<mainstring<<endl;}
+	|ent FUNC param ')' '{'{cout<<mainstring<<endl;		string cadena=*$2; string aux=cadena.substr(0,cadena.find("(")); cadena=aux.substr(aux.find(" "));cadena.erase(std::remove(cadena.begin(),cadena.end(),' '),cadena.end()); 			funciones.escribeini(fichero,cadena); enfuncion=1; contadorparametros=0;	
+	} ent RETURN {retu=1;} exp ';' {cout<<mainstring<<endl;		funciones.escriberet(fichero,$10); retu=0;} '}' {funciones.escribefin(fichero); enfuncion=0;}
+	|ent SCANF ';' {cout<<mainstring<<endl;		std::reverse(auxscanf.begin(),auxscanf.end()); for(int i=0;i<contadorscanf;i++){ string std=auxscanf[i]; int b; cin>>b; variables[std]=b;}} 
+	|ent IFs {cout<<mainstring<<endl;}
+	|ent DEFINE ID NUM {if(si==1 || sino==1){cout<<mainstring<<endl;		variables[*$3]=$4;}}
 	
 ;
 param:
@@ -175,8 +176,8 @@ Elsef:
 ;
 
 Declaracion:  INT ID  Declespe  { if(si==1 || sino==1){variables[*$1]=0;}}
-		|ID '=' {DecOrExp=1;} exp {if(si==1 || sino==1){variables[*$1]=$4; if(enfuncion==1){auto id=new NodoId(*$1); id->nuevaasign(fichero,contadorlocales); locales[*$1]=contadorlocales;fichero<<endl; contadorlocales++;}}}
-		|INT ID '=' {DecOrExp=1;} exp {if(si==1 || sino==1){variables[*$2]=$5; if(enfuncion==1){auto id=new NodoId(*$1); id->nuevaasign(fichero,contadorlocales); locales[*$1]=contadorlocales;fichero<<endl; contadorlocales++;}}}
+		|ID '=' {DecOrExp=1;} exp {if(si==1 || sino==1){variables[*$1]=$4; if(enfuncion==1){auto id=new NodoId(*$1); id->nuevaasign(mainstring,contadorlocales); locales[*$1]=contadorlocales;fichero<<endl; contadorlocales++;}}}
+		|INT ID '=' {DecOrExp=1;} exp {if(si==1 || sino==1){variables[*$2]=$5; if(enfuncion==1){auto id=new NodoId(*$1); id->nuevaasign(mainstring,contadorlocales); locales[*$1]=contadorlocales;fichero<<endl; contadorlocales++;}}}
 		|INT ID '[' NUM ']' 
 
 ;
@@ -184,15 +185,15 @@ Declespe:
 	|',' ID Declespe { if(si==1 || sino==1){variables[*$2]=0;}}
 	|ID { if(si==1 || sino==1){variables[*$1]=0;}}
 ;
-PRINTF: PRINT '('cadena COMI ',' dibuj ')' {string s=*$3; string devolver=imprimir(s); cout<<devolver<<endl; contadorliberaespacio++; print.escribe(fichero,contadorstrings,contadorliberaespacio, cadforprintf); cadforprintf=""; contadorstrings=1+contadorstrings;contadorliberaespacio=0;}
-	|PRINT '('cadena COMI ')' {string s=*$3; string devolver=imprimir(s); cout<<devolver<<endl; contadorliberaespacio++; print.escribe(fichero,contadorstrings,contadorliberaespacio, ""); contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
+PRINTF: PRINT '('cadena COMI ',' dibuj ')' {string s=*$3; string devolver=imprimir(s);  cout<<devolver<<endl; contadorliberaespacio++; nodo.stringfile(fichero,contadorstrings,s); print.escribe(mainstring,contadorstrings,contadorliberaespacio, cadforprintf); cadforprintf=""; contadorstrings=1+contadorstrings;contadorliberaespacio=0;}
+	|PRINT '('cadena COMI ')' {string s=*$3; string devolver=imprimir(s); cout<<devolver<<endl; contadorliberaespacio++; nodo.stringfile(fichero,contadorstrings,s); print.escribe(mainstring,contadorstrings,contadorliberaespacio, ""); contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
 ;
 dibuj: 	{$$=0;}
 	| dibuj ',' ID{int a=variables[*$3]; IDS.push_back(a); $$=1; print.insertar(cadforprintf,*$3); contadorliberaespacio++;}
 	| ID {int a=variables[*$1]; IDS.push_back(a); $$=1; print.insertar(cadforprintf,*$1); contadorliberaespacio++;}
 ;
-SCANF: SCAN '(' cadena COMI ',' espe ')' {string s=*$3; string devolver=imprimir(s); cout<<"Introduzca los valores:"<<endl; contadorliberaespacio++; scan.escribe(fichero,contadorstrings,contadorliberaespacio, cadforscanf);contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
-	|SCAN '(' cadena COMI ')'{string s=*$3; string devolver=imprimir(s); cout<<"Introduzca los valores:"<<endl; contadorliberaespacio++; scan.escribe(fichero,contadorstrings,contadorliberaespacio, ""); contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
+SCANF: SCAN '(' cadena COMI ',' espe ')' {string s=*$3; string devolver=imprimir(s); cout<<"Introduzca los valores:"<<endl; contadorliberaespacio++; nodo.stringfile(fichero,contadorstrings,s); scan.escribe(mainstring,contadorstrings,contadorliberaespacio, cadforscanf);contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
+	|SCAN '(' cadena COMI ')'{string s=*$3; string devolver=imprimir(s); cout<<"Introduzca los valores:"<<endl; contadorliberaespacio++; nodo.stringfile(fichero,contadorstrings,s); scan.escribe(mainstring,contadorstrings,contadorliberaespacio, ""); contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
 ;
 espe:	{$$=0;}
 	| espe ',' '&' ID {int a=variables[*$4]; IDS.push_back(a); $$=1; scan.insertar(cadforscanf,*$4); auxscanf.push_back(*$4); contadorscanf=contadorscanf+1; contadorliberaespacio++;}
@@ -224,19 +225,19 @@ comparacion: NOT comparacion {if($2==1){$$=0;}else{$$=1;}}
 
 
 
-exp: exp{suma.escribepush(fichero); fichero<<endl; } '+' term {$$=$1+$4;  suma=*(new NodoSuma($1,$4)); suma.escribe(fichero); fichero<<endl;}
-	|exp{resta.escribepush(fichero); fichero<<endl; } '-' term {$$=$1-$4; resta=*(new NodoResta($1,$4)); resta.escribe(fichero); fichero<<endl;}
+exp: exp{suma.escribepush(mainstring); fichero<<endl; } '+' term {$$=$1+$4;  suma=*(new NodoSuma($1,$4)); suma.escribe(mainstring); fichero<<endl;}
+	|exp{resta.escribepush(mainstring); fichero<<endl; } '-' term {$$=$1-$4; resta=*(new NodoResta($1,$4)); resta.escribe(mainstring); fichero<<endl;}
 	|term	{$$=$1;}
 ;
 
-term: term {multi.escribepush(fichero); fichero<<endl; } '*' fact {$$=$1*$4; multi=*(new NodoMul($1,$4)); multi.escribe(fichero); fichero<<endl;}
-	|term {divi.escribepush(fichero); fichero<<endl; } '/' fact {$$=$1/$4;  divi=*(new NodoDiv($1,$4)); divi.escribe(fichero); fichero<<endl;}
+term: term {multi.escribepush(mainstring); fichero<<endl; } '*' fact {$$=$1*$4; multi=*(new NodoMul($1,$4)); multi.escribe(mainstring); fichero<<endl;}
+	|term {divi.escribepush(mainstring); fichero<<endl; } '/' fact {$$=$1/$4;  divi=*(new NodoDiv($1,$4)); divi.escribe(mainstring); fichero<<endl;}
 	|fact {$$=$1;}
 ;
-fact: NUM {$$=$1; if(enfuncion==1 && retu!=1){auto num=new NodoNum($1); num->escribe(fichero); fichero<<endl;}}
-	|'-' NUM {$$=-$2; if(enfuncion==1 && retu!=1){auto num=new NodoNum(-$2); num->escribe(fichero); fichero<<endl;}}
+fact: NUM {$$=$1; if(enfuncion==1 && retu!=1){auto num=new NodoNum($1); num->escribe(mainstring); fichero<<endl;}}
+	|'-' NUM {$$=-$2; if(enfuncion==1 && retu!=1){auto num=new NodoNum(-$2); num->escribe(mainstring); fichero<<endl;}}
 	|'(' exp ')' {$$=$2;}
-	|ID {/*varint a=buscar($1); $$=a.nu;*/ $$=variables[*$1]; if(enfuncion==1){if(buscarenmap(*$1,locales)!=-1){int aux=buscarenmap(*$1,locales);auto id=new NodoId(*$1); id->escribe(fichero,1,aux); fichero<<endl;}else if(buscarenmap(*$1,parametros)!=-1){int aux=buscarenmap(*$1,parametros);auto id=new NodoId(*$1); id->escribe(fichero,2,aux); fichero<<endl;}}
+	|ID {/*varint a=buscar($1); $$=a.nu;*/ $$=variables[*$1]; if(enfuncion==1){if(buscarenmap(*$1,locales)!=-1){int aux=buscarenmap(*$1,locales);auto id=new NodoId(*$1); id->escribe(mainstring,1,aux); fichero<<endl;}else if(buscarenmap(*$1,parametros)!=-1){int aux=buscarenmap(*$1,parametros);auto id=new NodoId(*$1); id->escribe(mainstring,2,aux); fichero<<endl;}}
 }
 ;
 

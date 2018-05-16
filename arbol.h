@@ -10,6 +10,7 @@ namespace Tree {
 		public:
 			Node(void){}
 			void finalWrite(std::fstream &file, std::string mainstring);
+			void stringfile(std::fstream &file, int, std::string mainstring);
 
 	};
 
@@ -37,8 +38,8 @@ namespace Tree {
 		std::string name;
 		public:
 			NodoId(std::string);
-			void nuevaasign(std::fstream &,int);
-			void escribe(std::fstream &,int,int);
+			void nuevaasign(std::string &,int);
+			void escribe(std::string &,int,int);
 	};
 
 
@@ -46,7 +47,7 @@ namespace Tree {
 		int value;
 		public:
 			NodoNum(int);
-			void escribe(std::fstream &);
+			void escribe(std::string &);
 	};
 
 
@@ -56,8 +57,8 @@ namespace Tree {
 			NodoSuma(){}
 			NodoSuma(int ,int );
 			NodoSuma& operator= (const NodoSuma& X){var1=X.var1; var2=X.var2; return *this;}
-			void escribepush(std::fstream &);
-			void escribe(std::fstream &);
+			void escribepush(std::string &);
+			void escribe(std::string &);
 	};
 
 
@@ -67,8 +68,8 @@ namespace Tree {
 			NodoResta(){}
 			NodoResta(int,int);
 			NodoResta& operator= (const NodoResta& X){var1=X.var1; var2=X.var2; return *this;}
-			void escribepush(std::fstream &);
-			void escribe(std::fstream &);
+			void escribepush(std::string &);
+			void escribe(std::string &);
 	};
 
 
@@ -78,8 +79,8 @@ namespace Tree {
 			NodoMul(){}
 			NodoMul(int,int);
 			NodoMul& operator= (const NodoMul& X){var1=X.var1; var2=X.var2; return *this;}
-			void escribepush(std::fstream &);
-			void escribe(std::fstream &);
+			void escribepush(std::string &);
+			void escribe(std::string &);
 	};
 
 
@@ -89,8 +90,8 @@ namespace Tree {
 			NodoDiv(){}
 			NodoDiv(int,int);
 			NodoDiv& operator= (const NodoDiv& X){var1=X.var1; var2=X.var2; return *this;}
-			void escribepush(std::fstream &);
-			void escribe(std::fstream &);
+			void escribepush(std::string &);
+			void escribe(std::string &);
 	};
 	
 
@@ -99,7 +100,7 @@ namespace Tree {
 		public:
 			NodoPrintf(){}
 			void insertar(std::string &,std::string);
-			void escribe(std::fstream &,int ,int, std::string );
+			void escribe(std::string &,int ,int, std::string );
 	};
 
 
@@ -108,7 +109,7 @@ namespace Tree {
 		public:
 			NodoScanf(){}
 			void insertar(std::string &,std::string);
-			void escribe(std::fstream &,int ,int, std::string );
+			void escribe(std::string &,int ,int, std::string );
 	};
 
 

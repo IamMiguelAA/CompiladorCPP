@@ -43,98 +43,90 @@ void Tree::Node::finalWrite(std::fstream &file, std::string mainstring){
 	file<<mainstring<<endl;
 }
 
-void Tree::NodoId::escribe(fstream &file,int cont,int contador=0){
+void Tree::Node::stringfile(std::fstream &file, int numstring, std::string mainstring){
+	file<<".LC"<<numstring<<endl;
+	file<<".string \""<<mainstring<<"\""<<endl<<endl;
+}
+
+void Tree::NodoId::escribe(string &mainstring,int cont,int contador=0){
 	switch(cont){
 		case 1:
 			int valor;
 			valor=4+4*contador;
-			file<<"movl  -"<<valor<<"(%ebp),%eax"<<endl;
+			mainstring=mainstring+"movl  -"+to_string(valor)+"(%ebp),%eax\n";
 			break;
 		case 2:
 			int entero;
 			entero=8+4*contador;
-			file<<"movl "<<entero<<"(%ebp),	%eax"<<endl;
+			mainstring=mainstring+"movl "+to_string(entero)+"(%ebp),%eax\n";
 			break;
 		case 3:
-			file<<"movl "<<name<<", %eax"<<endl;
+			mainstring=mainstring+"movl "+name+", %eax\n";
 			break;
 	}
 }
 
-void::Tree::NodoId::nuevaasign(fstream &file,int contador){
+void::Tree::NodoId::nuevaasign(string &mainstring,int contador){
 	int valor;
 	valor=4+4*contador;
-	file<<"movl  %eax,	-"<<valor<<"(%ebp)"<<endl;
+	mainstring=mainstring+"movl %eax, -"+to_string(valor)+"(%ebp)\n";
 }
 
-void Tree::NodoNum::escribe(fstream &file){
+void Tree::NodoNum::escribe(string &mainstring){
 	string str1="$"+to_string(value);
-	file<<"movl "<<str1<<", %eax"<<endl;
+	mainstring+="movl "+str1+", %eax\n";
 }
 
-void Tree::NodoSuma::escribepush(fstream &file){
-	file<<"pushl %eax"<<endl;
+void Tree::NodoSuma::escribepush(string &mainstring){
+	mainstring+="pushl %eax\n";
 }
 
-void Tree::NodoResta::escribepush(fstream &file){
-	file<<"pushl %eax"<<endl;
+void Tree::NodoResta::escribepush(string &mainstring){
+	mainstring+="pushl %eax\n";
 }
 
-void Tree::NodoMul::escribepush(fstream &file){
-	file<<"pushl %eax"<<endl;
+void Tree::NodoMul::escribepush(string &mainstring){
+	mainstring+="pushl %eax\n";
 }
 
-void Tree::NodoDiv::escribepush(fstream &file){
-	file<<"pushl %eax"<<endl;
+void Tree::NodoDiv::escribepush(string &mainstring){
+	mainstring+="pushl %eax\n";
 }
 
-void Tree::NodoSuma::escribe(fstream &file){
-	file<<"movl %eax, %ebx"<<endl;
-	file<<"popl %eax"<<endl;
-	file<<"addl %ebx, %eax"<<endl;
+void Tree::NodoSuma::escribe(string &mainstring){
+	mainstring+="movl %eax, %ebx\npopl %eax\naddl %ebx, %eax\n";
 }
 
-void Tree::NodoResta::escribe(fstream &file){
-	file<<"movl %eax, %ebx"<<endl;
-	file<<"popl %eax"<<endl;
-	file<<"subl %ebx, %eax"<<endl;
+void Tree::NodoResta::escribe(string &mainstring){
+	mainstring+="movl %eax, %ebx\npopl %eax\nsubl %ebx, %eax\n";
 }
 
-void Tree::NodoMul::escribe(fstream &file){
-	file<<"movl %eax, %ebx"<<endl;
-	file<<"popl %eax"<<endl;
-	file<<"imull %ebx, %eax"<<endl;
+void Tree::NodoMul::escribe(string &mainstring){
+	mainstring+="movl %eax, %ebx\npopl %eax\nimull %ebx, %eax\n";
 }
 
-void Tree::NodoDiv::escribe(fstream &file){
-	file<<"movl %eax, %ebx"<<endl;
-	file<<"popl %eax"<<endl;
-	file<<"cdq"<<endl;
-	file<<"divl %ebx"<<endl;
+void Tree::NodoDiv::escribe(string &mainstring){
+	mainstring+="movl %eax, %ebx\npopl %eax\ncdq\ndivl %ebx\n";
 }
 
 void Tree::NodoPrintf::insertar(string &cadforprintf,string cadena){
 	cadforprintf="pushl  "+cadena+"\n"+cadforprintf;
+	cout<<"hola1"<<endl;
+	cout<<cadforprintf<<endl;
 }
 
-void Tree::NodoPrintf::escribe(fstream &file,int cont,int contador, string cadforprintf){
-	file<<cadforprintf;
-	file<<"pushl $s"<<cont<<endl;
-	file<<"call printf"<<endl;
-	file<<"addl $"<<4*contador<<",	%esp"<<endl;
-	file<<endl;
+void Tree::NodoPrintf::escribe(string &mainstring,int cont,int contador, string cadforprintf){
+	mainstring=mainstring+"\n"+cadforprintf+"pushl $.LC"+to_string(cont)+"\n"+"call printf"+"\n"+"addl $"+to_string(4*contador)+", %esp"+"\n";
+	cout<<"hola2"<<endl;
+	cout<<mainstring<<endl;
 }
 
 void Tree::NodoScanf::insertar(string &cadforprintf,string cadena){
 	cadforprintf="pushl  "+cadena+"\n"+cadforprintf;
 }
 
-void Tree::NodoScanf::escribe(fstream &file,int cont,int contador, string cadforprintf){
-	file<<cadforprintf;
-	file<<"pushl $s"<<cont<<endl;
-	file<<"call scanf"<<endl;
-	file<<"addl $"<<4*contador<<",	%esp"<<endl;
-	file<<endl;
+void Tree::NodoScanf::escribe(string &mainstring,int cont,int contador, string cadforprintf){
+	mainstring+="\n"+cadforprintf+"pushl $.LC"+to_string(cont)+"\n"+"call scanf"+"\n"+"addl $"+to_string(4*contador)+", %esp"+"\n";
 }
 
 void Tree::NodoFunc::escribeini(fstream &file,string nombre){
