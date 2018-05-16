@@ -168,12 +168,12 @@ Declespe:
 	|',' ID Declespe { if(si==1 || sino==1){variablesenteras.push_back(varint($2));}}
 	|ID { if(si==1 || sino==1){variablesenteras.push_back(varint($1));}}
 ;
-PRINTF: PRINT '('cadena COMI ',' dibuj ')' {string s=*$3; string devolver=imprimir(s); cout<<devolver<<endl; contadorliberaespacio++; print.escribe(fichero,contadorstrings,contadorliberaespacio); contadorstrings=1+contadorstrings;contadorliberaespacio=0;}
-	|PRINT '('cadena COMI ')' {string s=*$3; string devolver=imprimir(s); cout<<devolver<<endl; contadorliberaespacio++; print.escribe(fichero,contadorstrings,contadorliberaespacio); contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
+PRINTF: PRINT '('cadena COMI ',' dibuj ')' {string s=*$3; string devolver=imprimir(s); cout<<devolver<<endl; contadorliberaespacio++; print.escribe(fichero,contadorstrings,contadorliberaespacio, cadforprintf); cadforprintf=""; contadorstrings=1+contadorstrings;contadorliberaespacio=0;}
+	|PRINT '('cadena COMI ')' {string s=*$3; string devolver=imprimir(s); cout<<devolver<<endl; contadorliberaespacio++; print.escribe(fichero,contadorstrings,contadorliberaespacio, ""); contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
 ;
 dibuj: 	{$$=0;}
-	| ID ',' dibuj {varint a=buscar($1); IDS.push_back(a.nu); $$=1; print.insertar(fichero,*$1); contadorliberaespacio++;}
-	| ID {varint a=buscar($1); IDS.push_back(a.nu); $$=1; print.insertar(fichero,*$1); contadorliberaespacio++;}
+	| dibuj ',' ID{varint a=buscar($3); IDS.push_back(a.nu); $$=1; print.insertar(cadforprintf,*$3); contadorliberaespacio++;}
+	| ID {varint a=buscar($1); IDS.push_back(a.nu); $$=1; print.insertar(cadforprintf,*$1); contadorliberaespacio++;}
 
 ;
 SCANF: SCAN '(' cadena COMI ',' espe ')' {string s=*$3; string devolver=imprimir(s); cout<<"Introduzca los valores:"<<endl; contadorliberaespacio++; scan.escribe(fichero,contadorstrings,contadorliberaespacio);contadorliberaespacio=0; contadorstrings=1+contadorstrings;}

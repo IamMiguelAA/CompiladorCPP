@@ -90,11 +90,12 @@ file<<"cdq"<<endl;
 file<<"divl %ebx"<<endl;
 }
 
-void Tree::NodoPrintf::insertar(fstream &file,string cadena){
-	file<<"pushl  "<<cadena<<endl;
+void Tree::NodoPrintf::insertar(string cadforprintf,string cadena){
+	cadforprintf="pushl  "+cadena+"\n"+cadforprintf;
 }
 
-void Tree::NodoPrintf::escribe(fstream &file,int cont,int contador){
+void Tree::NodoPrintf::escribe(fstream &file,int cont,int contador, string cadforprintf){
+	file<<cadforprintf<<endl;
 	file<<"pushl $s"<<cont<<endl;
 	file<<"call printf"<<endl;
 	file<<"addl $"<<4*contador<<",	%esp"<<endl;
