@@ -28,6 +28,7 @@ class NodoId: public Node{
 std::string name;
 public:
 NodoId(std::string);
+void nuevaasign(std::fstream &,int);
 void escribe(std::fstream &,int,int);
 };
 class NodoNum: public Node{
@@ -72,13 +73,12 @@ NodoDiv& operator= (const NodoDiv& X){var1=X.var1; var2=X.var2; return *this;}
 void escribepush(std::fstream &);
 void escribe(std::fstream &);
 };
-
 class NodoPrintf: public Node{
 std::string cadena;
 public:
 NodoPrintf(){}
-void insertar(std::string cadforprintf,std::string);
-void escribe(std::fstream &,int ,int, std::string cadforprintf);
+void insertar(std::string &,std::string);
+void escribe(std::fstream &,int ,int, std::string );
 
 
 };

@@ -48,6 +48,11 @@ void Tree::NodoId::escribe(fstream &file,int cont,int contador=0){
 
 }
 }
+void::Tree::NodoId::nuevaasign(fstream &file,int contador){
+	int valor;
+	valor=4+4*contador;
+	file<<"movl  %eax,	-"<<valor<<"(%ebp)"<<endl;
+}
 
 void Tree::NodoNum::escribe(fstream &file){
 	string str1="$"+to_string(value);
@@ -90,12 +95,12 @@ file<<"cdq"<<endl;
 file<<"divl %ebx"<<endl;
 }
 
-void Tree::NodoPrintf::insertar(string cadforprintf,string cadena){
+void Tree::NodoPrintf::insertar(string &cadforprintf,string cadena){
 	cadforprintf="pushl  "+cadena+"\n"+cadforprintf;
 }
 
 void Tree::NodoPrintf::escribe(fstream &file,int cont,int contador, string cadforprintf){
-	file<<cadforprintf<<endl;
+	file<<cadforprintf;
 	file<<"pushl $s"<<cont<<endl;
 	file<<"call printf"<<endl;
 	file<<"addl $"<<4*contador<<",	%esp"<<endl;
