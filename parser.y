@@ -1,121 +1,133 @@
 %{
-#include <iostream>
-#include <iterator>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <vector>
-#include "arbol.cpp"
-#include <algorithm>
-#include <map>
+	#include <iostream>
+	#include <iterator>
+	#include <fstream>
+	#include <sstream>
+	#include <string>
+	#include <vector>
+	#include "arbol.cpp"
+	#include <algorithm>
+	#include <map>
 
-using namespace std;
-int yyerror(const char* msj);
-int yylex(void);
-fstream fichero;
-NodoSuma suma;
-NodoResta resta;
-NodoMul multi;
-NodoDiv divi;
-NodoPrintf print;
-NodoScanf scan;
-NodoFunc funciones;
-int DecOrExp=0;
-int contadorstrings=0;
-int contadorscanf=0;
-int contadorliberaespacio=0;
-int contadorlocales=0;
-int enfuncion=0;
-int retu=0;
-int contadorparametros=0;
-map<string,int> parametros;
-map<string,int> locales;
-map<string,int> globales;
-map<string,int> variables;
-//String for the printf function.
-string cadforprintf="";
-//String for the scanf function.
-string cadforscanf="";
+	using namespace std;
+	int yyerror(const char* msj);
+	int yylex(void);
+	fstream fichero;
+	NodoSuma suma;
+	NodoResta resta;
+	NodoMul multi;
+	NodoDiv divi;
+	NodoPrintf print;
+	NodoScanf scan;
+	NodoFunc funciones;
 
-struct varint{
-varint(string *n,int v=0){
-var=n;
-nu=v;
-}
-varint& operator = (varint& a){
-this->var=a.var;
-this->nu=a.nu;
-}
-varint& modificar(int a){
-this->nu=a;
-}
-string * var;
-int nu;
-};
+	//Contadores
+	int DecOrExp=0;
+	int contadorstrings=0;
+	int contadorscanf=0;
+	int contadorliberaespacio=0;
+	int contadorlocales=0;
+	int enfuncion=0;
+	int retu=0;
+	int contadorparametros=0;
 
-int si=1;
-int sino=0;
+	//Maps
+	map<string,int> parametros;
+	map<string,int> locales;
+	map<string,int> globales;
+	map<string,int> variables;
 
-vector<varint> variablesenteras;
-vector<string> auxscanf;
-vector<int> IDS;
 
-varint& buscar(string *n){
-int it=0;
-bool encontrado=false;
-vector<varint>::iterator iterador;
-iterador=variablesenteras.begin();
-while(iterador!=variablesenteras.end() && encontrado!=true){
-	if(*(variablesenteras[it].var)==*(n)){
-	encontrado=true;
-	}else{
-	iterador++;
-	it++;
+	//String for the printf function.
+	string cadforprintf="";
+	//String for the scanf function.
+	string cadforscanf="";
+	//String for the scanf function.
+	string mainstring="";
+
+
+	//Main Struct
+	struct varint{
+		varint(string *n,int v=0){
+			var=n;
+			nu=v;
+		}
+
+		varint& operator = (varint& a){
+			this->var=a.var;
+			this->nu=a.nu;
+		}
+	
+		varint& modificar(int a){
+			this->nu=a;
+		}
+		string * var;
+		int nu;
+	};
+
+	int si=1;
+	int sino=0;
+
+	vector<varint> variablesenteras;
+	vector<string> auxscanf;
+	vector<int> IDS;
+
+	varint& buscar(string *n){
+	int it=0;
+	bool encontrado=false;
+	vector<varint>::iterator iterador;
+	iterador=variablesenteras.begin();
+	while(iterador!=variablesenteras.end() && encontrado!=true){
+		if(*(variablesenteras[it].var)==*(n)){
+			encontrado=true;
+		}else{
+			iterador++;
+			it++;
+		}
 	}
-}
-if(encontrado==true){
-return variablesenteras[it];
-}
-}
+	if(encontrado==true){
+	return variablesenteras[it];
+	}
+	}
 
-string imprimir(string s){
+	string imprimir(string s){
 
-string devolver;
-int longitud=0;
-int j=0;
-s.erase(0,1);
+	string devolver;
+	int longitud=0;
+	int j=0;
+	s.erase(0,1);
 
-for(int i=0;i<s.length();i++){
+	for(int i=0;i<s.length();i++){
 
-if(s[i]=='%'){
-j=i+1;
-if(s[j]=='d'){
-int a=IDS.back();
-IDS.pop_back();
-devolver+=to_string(a);
-longitud+=to_string(a).length();
-i=j;
-}else{
-longitud++;
-devolver.resize(longitud,s[i]);
-}
-}else{
-longitud++;
-devolver.resize(longitud,s[i]);
-}
-}
+	if(s[i]=='%'){
+	j=i+1;
+	if(s[j]=='d'){
+	int a=IDS.back();
+	IDS.pop_back();
+	devolver+=to_string(a);
+	longitud+=to_string(a).length();
+	i=j;
+	}else{
+	longitud++;
+	devolver.resize(longitud,s[i]);
+	}
+	}else{
+	longitud++;
+	devolver.resize(longitud,s[i]);
+	}
+	}
 
-return devolver;
+	return devolver;
 
-}
+	}
 
-int buscarenmap(string cad,map<string,int> entrada){
-std::map<string,int>::iterator it=entrada.find(cad);
-if(it!=entrada.end()){
-return entrada[cad];
-}else{return -1;}
+	int buscarenmap(string cad,map<string,int> entrada){
+	std::map<string,int>::iterator it=entrada.find(cad);
+	if(it!=entrada.end()){
+	return entrada[cad];
+	}else{return -1;}
 
-}
+	}
 
 
 %}
@@ -135,7 +147,6 @@ string * nombre;
 %type <nombre> Declaracion PRINTF SCANF
 %nonassoc IF
 %nonassoc ELSE
-//%type <nombre> ifst elsest
 %start ent
 
 %%
@@ -146,9 +157,9 @@ ent:
 	|ent PRINTF ';'
 	|ent FUNC param ')' '{'{string cadena=*$2; string aux=cadena.substr(0,cadena.find("(")); cadena=aux.substr(aux.find(" "));cadena.erase(std::remove(cadena.begin(),cadena.end(),' '),cadena.end()); 			funciones.escribeini(fichero,cadena); enfuncion=1; contadorparametros=0;	
 	} ent RETURN {retu=1;} exp ';' {funciones.escriberet(fichero,$10); retu=0;} '}' {funciones.escribefin(fichero); enfuncion=0;}
-	|ent SCANF ';' {std::reverse(auxscanf.begin(),auxscanf.end()); for(int i=0;i<contadorscanf;i++){/*varint a=buscar(auxscanf[i]);*/ string std=auxscanf[i]; int b; cin>>b; variables[std]=b; /*varint prue=buscar(auxscanf[i]); cout<<prue.nu<<endl;*/ }} 
+	|ent SCANF ';' {std::reverse(auxscanf.begin(),auxscanf.end()); for(int i=0;i<contadorscanf;i++){ string std=auxscanf[i]; int b; cin>>b; variables[std]=b;}} 
 	|ent IFs 
-	|ent DEFINE ID NUM {if(si==1 || sino==1){/*variablesenteras.push_back(varint($3,$4));*/ variables[*$3]=$4;}}
+	|ent DEFINE ID NUM {if(si==1 || sino==1){variables[*$3]=$4;}}
 	
 ;
 param:
@@ -163,38 +174,38 @@ Elsef:
 
 ;
 
-Declaracion:  INT ID  Declespe  { if(si==1 || sino==1){/*variablesenteras.push_back(varint($2));*/ variables[*$1]=0;}}
-		|ID '=' {DecOrExp=1;} exp {if(si==1 || sino==1){/*buscar($1).nu=$4;*/ variables[*$1]=$4; if(enfuncion==1){auto id=new NodoId(*$1); id->nuevaasign(fichero,contadorlocales); locales[*$1]=contadorlocales;fichero<<endl; contadorlocales++;}}}
-		|INT ID '=' {DecOrExp=1;} exp {if(si==1 || sino==1){/*variablesenteras.push_back(varint($2,$5));*/ variables[*$2]=$5; if(enfuncion==1){auto id=new NodoId(*$1); id->nuevaasign(fichero,contadorlocales); locales[*$1]=contadorlocales;fichero<<endl; contadorlocales++;}}}
+Declaracion:  INT ID  Declespe  { if(si==1 || sino==1){variables[*$1]=0;}}
+		|ID '=' {DecOrExp=1;} exp {if(si==1 || sino==1){variables[*$1]=$4; if(enfuncion==1){auto id=new NodoId(*$1); id->nuevaasign(fichero,contadorlocales); locales[*$1]=contadorlocales;fichero<<endl; contadorlocales++;}}}
+		|INT ID '=' {DecOrExp=1;} exp {if(si==1 || sino==1){variables[*$2]=$5; if(enfuncion==1){auto id=new NodoId(*$1); id->nuevaasign(fichero,contadorlocales); locales[*$1]=contadorlocales;fichero<<endl; contadorlocales++;}}}
 		|INT ID '[' NUM ']' 
 
 ;
 Declespe: 
-	|',' ID Declespe { if(si==1 || sino==1){/*variablesenteras.push_back(varint($2));*/ variables[*$2]=0;}}
-	|ID { if(si==1 || sino==1){/*variablesenteras.push_back(varint($1));}*/ variables[*$1]=0;}}
+	|',' ID Declespe { if(si==1 || sino==1){variables[*$2]=0;}}
+	|ID { if(si==1 || sino==1){variables[*$1]=0;}}
 ;
 PRINTF: PRINT '('cadena COMI ',' dibuj ')' {string s=*$3; string devolver=imprimir(s); cout<<devolver<<endl; contadorliberaespacio++; print.escribe(fichero,contadorstrings,contadorliberaespacio, cadforprintf); cadforprintf=""; contadorstrings=1+contadorstrings;contadorliberaespacio=0;}
 	|PRINT '('cadena COMI ')' {string s=*$3; string devolver=imprimir(s); cout<<devolver<<endl; contadorliberaespacio++; print.escribe(fichero,contadorstrings,contadorliberaespacio, ""); contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
 ;
 dibuj: 	{$$=0;}
-	| dibuj ',' ID{/*varint a=buscar($3);*/ int a=variables[*$3]; IDS.push_back(a); $$=1; print.insertar(cadforprintf,*$3); contadorliberaespacio++;}
-	| ID {/*varint a=buscar($1);*/ int a=variables[*$1]; IDS.push_back(a); $$=1; print.insertar(cadforprintf,*$1); contadorliberaespacio++;}
+	| dibuj ',' ID{int a=variables[*$3]; IDS.push_back(a); $$=1; print.insertar(cadforprintf,*$3); contadorliberaespacio++;}
+	| ID {int a=variables[*$1]; IDS.push_back(a); $$=1; print.insertar(cadforprintf,*$1); contadorliberaespacio++;}
 ;
 SCANF: SCAN '(' cadena COMI ',' espe ')' {string s=*$3; string devolver=imprimir(s); cout<<"Introduzca los valores:"<<endl; contadorliberaespacio++; scan.escribe(fichero,contadorstrings,contadorliberaespacio, cadforscanf);contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
 	|SCAN '(' cadena COMI ')'{string s=*$3; string devolver=imprimir(s); cout<<"Introduzca los valores:"<<endl; contadorliberaespacio++; scan.escribe(fichero,contadorstrings,contadorliberaespacio, ""); contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
 ;
 espe:	{$$=0;}
-	| espe ',' '&' ID {/*varint a=buscar($2);*/int a=variables[*$4]; IDS.push_back(a); $$=1; scan.insertar(cadforscanf,*$4); auxscanf.push_back(*$4); contadorscanf=contadorscanf+1; contadorliberaespacio++;}
-	| '&' ID {/*varint a=buscar($2);*/ int a=variables[*$2]; IDS.push_back(a); $$=1; scan.insertar(cadforscanf,*$2); auxscanf.push_back(*$2); contadorscanf=contadorscanf+1; contadorliberaespacio++;}
+	| espe ',' '&' ID {int a=variables[*$4]; IDS.push_back(a); $$=1; scan.insertar(cadforscanf,*$4); auxscanf.push_back(*$4); contadorscanf=contadorscanf+1; contadorliberaespacio++;}
+	| '&' ID {int a=variables[*$2]; IDS.push_back(a); $$=1; scan.insertar(cadforscanf,*$2); auxscanf.push_back(*$2); contadorscanf=contadorscanf+1; contadorliberaespacio++;}
 
 ;
 
 
-comp: ID Log ID {/*varint a=buscar($1);	varint b=buscar($3);*/ int a=variables[*$1]; int b=variables[*$3]; if(*$2=="=="){if(a==b){$$=1;}else{$$=0;}}else if(*$2=="<="){if(a<=b){$$=1;}else{$$=0;}}else if(*$2==">="){if(a>=b){$$=1;}else{$$=0;}}else if(*$2=="!="){if(a!=b){$$=1;}else{$$=0;}}}
+comp: ID Log ID {int a=variables[*$1]; int b=variables[*$3]; if(*$2=="=="){if(a==b){$$=1;}else{$$=0;}}else if(*$2=="<="){if(a<=b){$$=1;}else{$$=0;}}else if(*$2==">="){if(a>=b){$$=1;}else{$$=0;}}else if(*$2=="!="){if(a!=b){$$=1;}else{$$=0;}}}
 
-	|ID Log NUM {/*varint a=buscar($1);*/int a=variables[*$1]; if(*$2=="=="){if(a==$3){$$=1;}else{$$=0;}}else if(*$2=="<="){if(a<=$3){$$=1;}else{$$=0;}}else if(*$2==">="){if(a>=$3){$$=1;}else{$$=0;}}else if(*$2=="!="){if(a!=$3){$$=1;}else{$$=0;}}}
+	|ID Log NUM {int a=variables[*$1]; if(*$2=="=="){if(a==$3){$$=1;}else{$$=0;}}else if(*$2=="<="){if(a<=$3){$$=1;}else{$$=0;}}else if(*$2==">="){if(a>=$3){$$=1;}else{$$=0;}}else if(*$2=="!="){if(a!=$3){$$=1;}else{$$=0;}}}
 
-	|NUM Log ID {/*varint a=buscar($3);*/ int a=variables[*$3]; if(*$2=="=="){if(a==$1){$$=1;}else{$$=0;}}else if(*$2=="<="){if($1<=a){$$=1;}else{$$=0;}}else if(*$2==">="){if($1>=a){$$=1;}else{$$=0;}}else if(*$2=="!="){if(a!=$1){$$=1;}else{$$=0;}}}
+	|NUM Log ID {int a=variables[*$3]; if(*$2=="=="){if(a==$1){$$=1;}else{$$=0;}}else if(*$2=="<="){if($1<=a){$$=1;}else{$$=0;}}else if(*$2==">="){if($1>=a){$$=1;}else{$$=0;}}else if(*$2=="!="){if(a!=$1){$$=1;}else{$$=0;}}}
 
 	|NUM Log NUM {if(*$2=="=="){if($1==$3){$$=1;}else{$$=0;}}else if(*$2=="<="){if($1<=$3){$$=1;}else{$$=0;}}else if(*$2==">="){if($1>=$3){$$=1;}else{$$=0;}}else if(*$2=="!="){if($1!=$3){$$=1;}else{$$=0;}}}
 	
