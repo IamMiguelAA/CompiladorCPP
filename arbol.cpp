@@ -38,6 +38,11 @@ Tree::NodoDiv::NodoDiv(int x,int y){
 
 
 //Write in a file
+
+void Tree::Node::finalWrite(std::fstream &file, std::string mainstring){
+	file<<mainstring<<endl;
+}
+
 void Tree::NodoId::escribe(fstream &file,int cont,int contador=0){
 	switch(cont){
 		case 1:

@@ -9,7 +9,8 @@ namespace Tree {
 	class Node{
 		public:
 			Node(void){}
-			virtual void escribe(int level, bool old, bool ne){}
+			void finalWrite(std::fstream &file, std::string mainstring);
+
 	};
 
 
