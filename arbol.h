@@ -86,8 +86,8 @@ class NodoScanf: public Node{
 std::string cadena;
 public:
 NodoScanf(){}
-void insertar(std::fstream &,std::string);
-void escribe(std::fstream &,int , int );
+void insertar(std::string &,std::string);
+void escribe(std::fstream &,int ,int, std::string );
 
 
 };

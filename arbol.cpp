@@ -107,11 +107,12 @@ void Tree::NodoPrintf::escribe(fstream &file,int cont,int contador, string cadfo
 	file<<endl;
 }
 
-void Tree::NodoScanf::insertar(fstream &file,string cadena){
-	file<<"pushl  $"<<cadena<<endl;
+void Tree::NodoScanf::insertar(string &cadforprintf,string cadena){
+	cadforprintf="pushl  "+cadena+"\n"+cadforprintf;
 }
 
-void Tree::NodoScanf::escribe(fstream &file,int cont,int contador){
+void Tree::NodoScanf::escribe(fstream &file,int cont,int contador, string cadforprintf){
+	file<<cadforprintf;
 	file<<"pushl $s"<<cont<<endl;
 	file<<"call scanf"<<endl;
 	file<<"addl $"<<4*contador<<",	%esp"<<endl;

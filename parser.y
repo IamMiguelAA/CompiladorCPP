@@ -34,6 +34,8 @@ map<string,int> globales;
 map<string,int> variables;
 //String for the printf function.
 string cadforprintf="";
+//String for the scanf function.
+string cadforscanf="";
 
 struct varint{
 varint(string *n,int v=0){
@@ -178,12 +180,12 @@ dibuj: 	{$$=0;}
 	| dibuj ',' ID{/*varint a=buscar($3);*/ int a=variables[*$3]; IDS.push_back(a); $$=1; print.insertar(cadforprintf,*$3); contadorliberaespacio++;}
 	| ID {/*varint a=buscar($1);*/ int a=variables[*$1]; IDS.push_back(a); $$=1; print.insertar(cadforprintf,*$1); contadorliberaespacio++;}
 ;
-SCANF: SCAN '(' cadena COMI ',' espe ')' {string s=*$3; string devolver=imprimir(s); cout<<"Introduzca los valores:"<<endl; contadorliberaespacio++; scan.escribe(fichero,contadorstrings,contadorliberaespacio);contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
-	|SCAN '(' cadena COMI ')'{string s=*$3; string devolver=imprimir(s); cout<<"Introduzca los valores:"<<endl; contadorliberaespacio++; scan.escribe(fichero,contadorstrings,contadorliberaespacio); contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
+SCANF: SCAN '(' cadena COMI ',' espe ')' {string s=*$3; string devolver=imprimir(s); cout<<"Introduzca los valores:"<<endl; contadorliberaespacio++; scan.escribe(fichero,contadorstrings,contadorliberaespacio, cadforscanf);contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
+	|SCAN '(' cadena COMI ')'{string s=*$3; string devolver=imprimir(s); cout<<"Introduzca los valores:"<<endl; contadorliberaespacio++; scan.escribe(fichero,contadorstrings,contadorliberaespacio, ""); contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
 ;
 espe:	{$$=0;}
-	| '&' ID ',' espe {/*varint a=buscar($2);*/int a=variables[*$2]; IDS.push_back(a); $$=1; scan.insertar(fichero,*$2); auxscanf.push_back(*$2); contadorscanf=contadorscanf+1; contadorliberaespacio++;}
-	| '&' ID {/*varint a=buscar($2);*/ int a=variables[*$2]; IDS.push_back(a); $$=1; scan.insertar(fichero,*$2); auxscanf.push_back(*$2); contadorscanf=contadorscanf+1; contadorliberaespacio++;}
+	| espe ',' '&' ID {/*varint a=buscar($2);*/int a=variables[*$4]; IDS.push_back(a); $$=1; scan.insertar(cadforscanf,*$4); auxscanf.push_back(*$4); contadorscanf=contadorscanf+1; contadorliberaespacio++;}
+	| '&' ID {/*varint a=buscar($2);*/ int a=variables[*$2]; IDS.push_back(a); $$=1; scan.insertar(cadforscanf,*$2); auxscanf.push_back(*$2); contadorscanf=contadorscanf+1; contadorliberaespacio++;}
 
 ;
 
