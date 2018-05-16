@@ -13,6 +13,10 @@ using namespace std;
 int yyerror(const char* msj);
 int yylex(void);
 fstream fichero;
+
+//String for the printf function.
+string cadforprintf="";
+
 NodoSuma suma;
 NodoResta resta;
 NodoMul multi;
