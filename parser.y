@@ -246,7 +246,7 @@ fact: NUM {$$=$1; if(enllamada==1){call.insertarnum(llamada,$1);}else if (enfunc
 	|ID {/*varint a=buscar($1); $$=a.nu;*/ $$=variables[*$1];if(enllamada==1){if(locales.find(*$1)!=locales.end()){int aux=buscarenmap(*$1,locales); call.insertar(llamada,aux,1);}else if(parametros.find(*$1)!=parametros.end()){int aux=buscarenmap(*$1,parametros); call.insertar(llamada,aux,2);}
 }else if(enfuncion==1){if(locales.find(*$1)!=locales.end()){int aux=buscarenmap(*$1,locales);auto id=new NodoId(*$1); id->escribe(mainstring,1,aux); fichero<<endl;}else if(parametros.find(*$1)!=parametros.end()){int aux=buscarenmap(*$1,parametros);auto id=new NodoId(*$1); id->escribe(mainstring,2,aux); fichero<<endl;}}
 }
-	|CALL{enllamada=1;} especialcall ')' {string cadena=*$1; string aux=cadena.substr(0,cadena.find("(")); aux.erase(std::remove(aux.begin(),aux.end(),' '),aux.end()); enllamada=0; call.escribellamada(fichero,llamada,aux,contadorllamadas);	contadorllamadas=0; llamada="";}
+	|CALL{enllamada=1;} especialcall ')' {string cadena=*$1; string aux=cadena.substr(0,cadena.find("(")); aux.erase(std::remove(aux.begin(),aux.end(),' '),aux.end()); enllamada=0; call.escribellamada(mainstring,llamada,aux,contadorllamadas);	contadorllamadas=0; llamada="";}
 ;
 especialcall:
 		|especialcall ',' exp { contadorllamadas++;}

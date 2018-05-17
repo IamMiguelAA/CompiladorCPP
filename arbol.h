@@ -126,7 +126,7 @@ namespace Tree {
 	class NodoCall: public Node{
 	public:
 		NodoCall(){}
-		void escribellamada(std::fstream &,std::string,std::string,int);
+		void escribellamada(std::string &,std::string,std::string,int);
 		void insertar(std::string &,int, int);
 		void insertarnum(std::string &,int);
 	};
