@@ -111,14 +111,10 @@ void Tree::NodoDiv::escribe(string &mainstring){
 
 void Tree::NodoPrintf::insertar(string &cadforprintf,string cadena){
 	cadforprintf="pushl  "+cadena+"\n"+cadforprintf;
-	cout<<"hola1"<<endl;
-	cout<<cadforprintf<<endl;
 }
 
 void Tree::NodoPrintf::escribe(string &mainstring,int cont,int contador, string cadforprintf){
 	mainstring=mainstring+"\n"+cadforprintf+"pushl $.LC"+to_string(cont)+"\n"+"call printf"+"\n"+"addl $"+to_string(4*contador)+", %esp"+"\n";
-	cout<<"hola2"<<endl;
-	cout<<mainstring<<endl;
 }
 
 void Tree::NodoScanf::insertar(string &cadforprintf,string cadena){

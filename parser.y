@@ -152,15 +152,15 @@ string * nombre;
 
 %%
 ent: 
-	|ent EXIT {	cout<<mainstring<<endl; nodo.finalWrite(fichero,mainstring);YYABORT;}
-	|ent Declaracion ';' {cout<<mainstring<<endl;	DecOrExp=0;}
-	|ent exp ';' {cout<<mainstring<<endl;}
-	|ent PRINTF ';' {cout<<mainstring<<endl;}
-	|ent FUNC param ')' '{'{cout<<mainstring<<endl;		string cadena=*$2; string aux=cadena.substr(0,cadena.find("(")); cadena=aux.substr(aux.find(" "));cadena.erase(std::remove(cadena.begin(),cadena.end(),' '),cadena.end()); 			funciones.escribeini(mainstring,cadena); enfuncion=1; contadorparametros=0;	
-	} ent RETURN {retu=1;} exp ';' {cout<<mainstring<<endl;		funciones.escriberet(mainstring,$10); retu=0;} '}' {funciones.escribefin(mainstring); enfuncion=0;}
-	|ent SCANF ';' {cout<<mainstring<<endl;		std::reverse(auxscanf.begin(),auxscanf.end()); for(int i=0;i<contadorscanf;i++){ string std=auxscanf[i]; int b; cin>>b; variables[std]=b;}} 
-	|ent IFs {cout<<mainstring<<endl;}
-	|ent DEFINE ID NUM {if(si==1 || sino==1){cout<<mainstring<<endl;		variables[*$3]=$4;}}
+	|ent EXIT { nodo.finalWrite(fichero,mainstring);YYABORT;}
+	|ent Declaracion ';' {DecOrExp=0;}
+	|ent exp ';' {}
+	|ent PRINTF ';' {}
+	|ent FUNC param ')' '{'{string cadena=*$2; string aux=cadena.substr(0,cadena.find("(")); cadena=aux.substr(aux.find(" "));cadena.erase(std::remove(cadena.begin(),cadena.end(),' '),cadena.end()); 			funciones.escribeini(mainstring,cadena); enfuncion=1; contadorparametros=0;	
+	} ent RETURN {retu=1;} exp ';' {funciones.escriberet(mainstring,$10); retu=0;} '}' {funciones.escribefin(mainstring); enfuncion=0;}
+	|ent SCANF ';' {std::reverse(auxscanf.begin(),auxscanf.end()); for(int i=0;i<contadorscanf;i++){ string std=auxscanf[i]; int b; cin>>b; variables[std]=b;}} 
+	|ent IFs {}
+	|ent DEFINE ID NUM {if(si==1 || sino==1){variables[*$3]=$4;}}
 	
 ;
 param:
@@ -185,15 +185,15 @@ Declespe:
 	|',' ID Declespe { if(si==1 || sino==1){variables[*$2]=0;}}
 	|ID { if(si==1 || sino==1){variables[*$1]=0;}}
 ;
-PRINTF: PRINT '('cadena COMI ',' dibuj ')' {string s=*$3; string devolver=imprimir(s);  cout<<devolver<<endl; contadorliberaespacio++; nodo.stringfile(fichero,contadorstrings,s); print.escribe(mainstring,contadorstrings,contadorliberaespacio, cadforprintf); cadforprintf=""; contadorstrings=1+contadorstrings;contadorliberaespacio=0;}
-	|PRINT '('cadena COMI ')' {string s=*$3; string devolver=imprimir(s); cout<<devolver<<endl; contadorliberaespacio++; nodo.stringfile(fichero,contadorstrings,s); print.escribe(mainstring,contadorstrings,contadorliberaespacio, ""); contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
+PRINTF: PRINT '('cadena COMI ',' dibuj ')' {string s=*$3; string devolver=imprimir(s); contadorliberaespacio++; nodo.stringfile(fichero,contadorstrings,s); print.escribe(mainstring,contadorstrings,contadorliberaespacio, cadforprintf); cadforprintf=""; contadorstrings=1+contadorstrings;contadorliberaespacio=0;}
+	|PRINT '('cadena COMI ')' {string s=*$3; string devolver=imprimir(s); contadorliberaespacio++; nodo.stringfile(fichero,contadorstrings,s); print.escribe(mainstring,contadorstrings,contadorliberaespacio, ""); contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
 ;
 dibuj: 	{$$=0;}
 	| dibuj ',' ID{int a=variables[*$3]; IDS.push_back(a); $$=1; print.insertar(cadforprintf,*$3); contadorliberaespacio++;}
 	| ID {int a=variables[*$1]; IDS.push_back(a); $$=1; print.insertar(cadforprintf,*$1); contadorliberaespacio++;}
 ;
-SCANF: SCAN '(' cadena COMI ',' espe ')' {string s=*$3; string devolver=imprimir(s); cout<<"Introduzca los valores:"<<endl; contadorliberaespacio++; nodo.stringfile(fichero,contadorstrings,s); scan.escribe(mainstring,contadorstrings,contadorliberaespacio, cadforscanf);contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
-	|SCAN '(' cadena COMI ')'{string s=*$3; string devolver=imprimir(s); cout<<"Introduzca los valores:"<<endl; contadorliberaespacio++; nodo.stringfile(fichero,contadorstrings,s); scan.escribe(mainstring,contadorstrings,contadorliberaespacio, ""); contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
+SCANF: SCAN '(' cadena COMI ',' espe ')' {string s=*$3; string devolver=imprimir(s); contadorliberaespacio++; nodo.stringfile(fichero,contadorstrings,s); scan.escribe(mainstring,contadorstrings,contadorliberaespacio, cadforscanf);contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
+	|SCAN '(' cadena COMI ')'{string s=*$3; string devolver=imprimir(s); contadorliberaespacio++; nodo.stringfile(fichero,contadorstrings,s); scan.escribe(mainstring,contadorstrings,contadorliberaespacio, ""); contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
 ;
 espe:	{$$=0;}
 	| espe ',' '&' ID {int a=variables[*$4]; IDS.push_back(a); $$=1; scan.insertar(cadforscanf,*$4); auxscanf.push_back(*$4); contadorscanf=contadorscanf+1; contadorliberaespacio++;}
