@@ -116,10 +116,10 @@ namespace Tree {
 	class NodoFunc: public Node{
 		public:
 			NodoFunc(){}
-			void escribeini(std::fstream &,std::string );
-			void escribefin(std::fstream &);
-			void escriberet(std::fstream &,std::string);
-			void escriberet(std::fstream &,int);
+			void escribeini(std::string &,std::string );
+			void escribefin(std::string &);
+			void escriberet(std::string &,std::string);
+			void escriberet(std::string &,int);
 	};
 
 	const int Max = 80;

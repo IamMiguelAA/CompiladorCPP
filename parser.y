@@ -156,8 +156,8 @@ ent:
 	|ent Declaracion ';' {cout<<mainstring<<endl;	DecOrExp=0;}
 	|ent exp ';' {cout<<mainstring<<endl;}
 	|ent PRINTF ';' {cout<<mainstring<<endl;}
-	|ent FUNC param ')' '{'{cout<<mainstring<<endl;		string cadena=*$2; string aux=cadena.substr(0,cadena.find("(")); cadena=aux.substr(aux.find(" "));cadena.erase(std::remove(cadena.begin(),cadena.end(),' '),cadena.end()); 			funciones.escribeini(fichero,cadena); enfuncion=1; contadorparametros=0;	
-	} ent RETURN {retu=1;} exp ';' {cout<<mainstring<<endl;		funciones.escriberet(fichero,$10); retu=0;} '}' {funciones.escribefin(fichero); enfuncion=0;}
+	|ent FUNC param ')' '{'{cout<<mainstring<<endl;		string cadena=*$2; string aux=cadena.substr(0,cadena.find("(")); cadena=aux.substr(aux.find(" "));cadena.erase(std::remove(cadena.begin(),cadena.end(),' '),cadena.end()); 			funciones.escribeini(mainstring,cadena); enfuncion=1; contadorparametros=0;	
+	} ent RETURN {retu=1;} exp ';' {cout<<mainstring<<endl;		funciones.escriberet(mainstring,$10); retu=0;} '}' {funciones.escribefin(mainstring); enfuncion=0;}
 	|ent SCANF ';' {cout<<mainstring<<endl;		std::reverse(auxscanf.begin(),auxscanf.end()); for(int i=0;i<contadorscanf;i++){ string std=auxscanf[i]; int b; cin>>b; variables[std]=b;}} 
 	|ent IFs {cout<<mainstring<<endl;}
 	|ent DEFINE ID NUM {if(si==1 || sino==1){cout<<mainstring<<endl;		variables[*$3]=$4;}}

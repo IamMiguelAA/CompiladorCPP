@@ -129,19 +129,19 @@ void Tree::NodoScanf::escribe(string &mainstring,int cont,int contador, string c
 	mainstring+="\n"+cadforprintf+"pushl $.LC"+to_string(cont)+"\n"+"call scanf"+"\n"+"addl $"+to_string(4*contador)+", %esp"+"\n";
 }
 
-void Tree::NodoFunc::escribeini(fstream &file,string nombre){
-	file<<nombre<<":"<<endl;
-	file<<"pushl %ebp\n"<<"movl %esp, %ebp\n"<<endl;
+void Tree::NodoFunc::escribeini(string &mainstring,string nombre){
+	mainstring+=nombre+":\n";
+	mainstring+="pushl %ebp\nmovl %esp, %ebp\n\n";
 
 }
 
-void Tree::NodoFunc::escribefin(fstream &file){
-	file<<"\nmovl %ebp, %esp"<<"\npopl %ebp\nret\n"<<endl;
+void Tree::NodoFunc::escribefin(string &mainstring){
+	mainstring+="movl %ebp, %esp\npopl %ebp\nret\n\n";
 }
 
-void Tree::NodoFunc::escriberet(fstream &file,int a){
-	file<<"movl	$"<<a<<",	%eax"<<endl;
+void Tree::NodoFunc::escriberet(string &mainstring,int a){
+	mainstring+="movl $"+to_string(a)+", %eax\n";
 }
-void Tree::NodoFunc::escriberet(fstream &file,string a){
-	file<<"movl	"<<a<<",	%eax"<<endl;
+void Tree::NodoFunc::escriberet(string &mainstring,string a){
+	mainstring+="movl "+a+"\n"+", %eax\n";
 }
