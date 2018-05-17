@@ -45,7 +45,7 @@ void Tree::Node::finalWrite(std::fstream &file, std::string mainstring){
 
 void Tree::Node::stringfile(std::fstream &file, int numstring, std::string mainstring){
 	file<<".LC"<<numstring<<endl;
-	file<<".string \""<<mainstring<<"\""<<endl<<endl;
+	file<<".string "<<mainstring<<"\""<<endl<<endl;
 }
 
 void Tree::NodoId::escribe(string &mainstring,int cont,int contador=0){
@@ -140,4 +140,30 @@ void Tree::NodoFunc::escriberet(string &mainstring,int a){
 }
 void Tree::NodoFunc::escriberet(string &mainstring,string a){
 	mainstring+="movl "+a+"\n"+", %eax\n";
+}
+
+void Tree::NodoCall::insertar(string &texto,int contador,int cont){
+	switch(cont){
+		case 1:
+			int valor;
+			valor=4+4*contador;
+			texto="pushl  -"+to_string(valor)+"(%ebp)\n"+texto;
+			break;
+		case 2:
+			int entero;
+			entero=8+4*contador;
+			texto="pushl   "+to_string(entero)+"(%ebp)\n"+texto;
+			break;
+		
+
+
+}
+}
+void Tree::NodoCall::insertarnum(string &texto,int value){
+	texto="pushl	$"+to_string(value)+"\n"+texto;
+}
+void Tree::NodoCall::escribellamada(fstream &file,string texto,string func,int contador){
+	file<<texto<<endl;
+	file<<"call   "<<func<<endl;
+	file<<"addl  $"<<4*contador<<",	%esp"<<endl;
 }

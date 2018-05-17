@@ -21,6 +21,7 @@
 	NodoPrintf print;
 	NodoScanf scan;
 	NodoFunc funciones;
+	NodoCall call;
 
 	//Contadores
 	int DecOrExp=0;
@@ -31,6 +32,8 @@
 	int enfuncion=0;
 	int retu=0;
 	int contadorparametros=0;
+	int contadorllamadas;
+	int enllamada=0;
 
 	//Maps
 	map<string,int> parametros;
@@ -39,12 +42,15 @@
 	map<string,int> variables;
 
 
+
 	//String for the printf function.
 	string cadforprintf="";
 	//String for the scanf function.
 	string cadforscanf="";
 	//String for the scanf function.
 	string mainstring="";
+
+	string llamada="";
 
 
 	//Main Struct
@@ -142,7 +148,7 @@ string * nombre;
 
 
 %token <nombre> ID <valor> NUM <valor2>NUM2
-%token <nombre>INT FLOAT DOUBLE AND OR NOT Log DEFINE  PRINT RETURN SCAN EXIT FUNC
+%token <nombre>INT FLOAT DOUBLE AND OR NOT Log DEFINE  PRINT RETURN SCAN EXIT FUNC CALL
 %token <nombre> cadena COMI
 %type <valor> comp exp term fact compa compara comparacion dibuj espe
 %type <nombre> Declaracion PRINTF SCANF
@@ -234,12 +240,19 @@ term: term {multi.escribepush(mainstring); fichero<<endl; } '*' fact {$$=$1*$4; 
 	|term {divi.escribepush(mainstring); fichero<<endl; } '/' fact {$$=$1/$4;  divi=*(new NodoDiv($1,$4)); divi.escribe(mainstring); fichero<<endl;}
 	|fact {$$=$1;}
 ;
-fact: NUM {$$=$1; if(enfuncion==1 && retu!=1){auto num=new NodoNum($1); num->escribe(mainstring); fichero<<endl;}}
-	|'-' NUM {$$=-$2; if(enfuncion==1 && retu!=1){auto num=new NodoNum(-$2); num->escribe(mainstring); fichero<<endl;}}
+fact: NUM {$$=$1; if(enllamada==1){call.insertarnum(llamada,$1);}else if (enfuncion==1 && retu!=1 ){auto num=new NodoNum($1); num->escribe(mainstring); fichero<<endl;}}
+	|'-' NUM {$$=-$2; if(enllamada==1){call.insertarnum(llamada,-$2);} else if (enfuncion==1 && retu!=1 ){auto num=new NodoNum(-$2); num->escribe(mainstring); fichero<<endl;}}
 	|'(' exp ')' {$$=$2;}
-	|ID {/*varint a=buscar($1); $$=a.nu;*/ $$=variables[*$1]; if(enfuncion==1){if(buscarenmap(*$1,locales)!=-1){int aux=buscarenmap(*$1,locales);auto id=new NodoId(*$1); id->escribe(mainstring,1,aux); fichero<<endl;}else if(buscarenmap(*$1,parametros)!=-1){int aux=buscarenmap(*$1,parametros);auto id=new NodoId(*$1); id->escribe(mainstring,2,aux); fichero<<endl;}}
+	|ID {/*varint a=buscar($1); $$=a.nu;*/ $$=variables[*$1];if(enllamada==1){if(locales.find(*$1)!=locales.end()){int aux=buscarenmap(*$1,locales); call.insertar(llamada,aux,1);}else if(parametros.find(*$1)!=parametros.end()){int aux=buscarenmap(*$1,parametros); call.insertar(llamada,aux,2);}
+}else if(enfuncion==1){if(locales.find(*$1)!=locales.end()){int aux=buscarenmap(*$1,locales);auto id=new NodoId(*$1); id->escribe(mainstring,1,aux); fichero<<endl;}else if(parametros.find(*$1)!=parametros.end()){int aux=buscarenmap(*$1,parametros);auto id=new NodoId(*$1); id->escribe(mainstring,2,aux); fichero<<endl;}}
 }
+	|CALL{enllamada=1;} especialcall ')' {string cadena=*$1; string aux=cadena.substr(0,cadena.find("(")); aux.erase(std::remove(aux.begin(),aux.end(),' '),aux.end()); enllamada=0; call.escribellamada(fichero,llamada,aux,contadorllamadas);	contadorllamadas=0; llamada="";}
 ;
+especialcall:
+		|especialcall ',' exp { contadorllamadas++;}
+		|exp { contadorllamadas++;}
+;
+
 
 %%
 

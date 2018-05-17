@@ -122,9 +122,17 @@ namespace Tree {
 			void escriberet(std::string &,int);
 	};
 
-	const int Max = 80;
-	char* esp(int level, bool old, bool ne);
 	
+	class NodoCall: public Node{
+	public:
+		NodoCall(){}
+		void escribellamada(std::fstream &,std::string,std::string,int);
+		void insertar(std::string &,int, int);
+		void insertarnum(std::string &,int);
+	};
+
+	const int Max = 80;
+	char* esp (int level, bool old, bool ne);
 }
 
 namespace Errors{
