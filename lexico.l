@@ -12,6 +12,7 @@ using namespace std;
 ","		return *yytext;
 "exit"		{yylval.nombre=new string(yytext); return EXIT;}
 "int"+[a-zA-Z  ]+[(] {yylval.nombre=new string(yytext); return FUNC;}
+[a-zA-Z]+[a-zA-Z]*+[(]	{yylval.nombre=new string(yytext); return CALL;}
 "return"	{yylval.nombre = new string (yytext); return RETURN;}
 "#define"	{yylval.nombre = new string (yytext); return DEFINE;}
 "int"		{yylval.nombre = new string (yytext); return INT;}
