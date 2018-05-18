@@ -43,9 +43,20 @@ void Tree::Node::finalWrite(std::fstream &file, std::string mainstring){
 	file<<mainstring<<endl;
 }
 
-void Tree::Node::stringfile(std::fstream &file, int numstring, std::string mainstring){
-	file<<".LC"<<numstring<<endl;
-	file<<".string "<<mainstring<<"\""<<endl<<endl;
+void Tree::Node::stringfile(std::fstream &file, std::string mainstring){
+	file<<mainstring<<endl;
+}
+void Tree::Node::strings(std::string &strings,int contador,std::string mainstring){
+	strings+=".LC"+to_string(contador)+"\n"+"		.string"+mainstring+"\n";
+}
+void Tree::Node::reservaglobales(std::string &globales,string texto){
+	globales+=".comm	"+texto+",4,4\n";
+}
+void Tree::Node::declaraglobales(std::string &glob,string texto,int valor){
+	glob+=texto+":\n"+"		.long	"+to_string(valor)+"\n";
+}
+void Tree::Node::globalesfile(std::fstream &file,string texto){
+	file<<texto<<endl;
 }
 
 void Tree::NodoId::escribe(string &mainstring,int cont,int contador=0){
@@ -66,10 +77,15 @@ void Tree::NodoId::escribe(string &mainstring,int cont,int contador=0){
 	}
 }
 
-void::Tree::NodoId::nuevaasign(string &mainstring,int contador){
-	int valor;
-	valor=4+4*contador;
-	mainstring=mainstring+"movl %eax, -"+to_string(valor)+"(%ebp)\n";
+void::Tree::NodoId::nuevaasign(string &mainstring,int contador,int cont){
+	switch(cont){
+		case 1:
+			int valor;
+			valor=4+4*contador;
+			mainstring=mainstring+"movl %eax, -"+to_string(valor)+"(%ebp)\n";
+			break;
+	}
+	
 }
 
 void Tree::NodoNum::escribe(string &mainstring){
@@ -117,8 +133,15 @@ void Tree::NodoPrintf::escribe(string &mainstring,int cont,int contador, string 
 	mainstring=mainstring+"\n"+cadforprintf+"pushl $.LC"+to_string(cont)+"\n"+"call printf"+"\n"+"addl $"+to_string(4*contador)+", %esp"+"\n";
 }
 
-void Tree::NodoScanf::insertar(string &cadforprintf,string cadena){
-	cadforprintf="pushl  "+cadena+"\n"+cadforprintf;
+void Tree::NodoScanf::insertar(string &cadforprintf,string cadena,int contador,int cont){
+	switch(cont){
+		case 1:
+			cadforprintf="leal	-"+to_string(4+4*contador)+"(%ebp),	%eax\n"+"pushl	%eax\n"+cadforprintf;
+			break;
+		case 2:
+			cadforprintf="pushl  $"+cadena+"\n"+cadforprintf;
+			break;
+}
 }
 
 void Tree::NodoScanf::escribe(string &mainstring,int cont,int contador, string cadforprintf){
@@ -126,14 +149,18 @@ void Tree::NodoScanf::escribe(string &mainstring,int cont,int contador, string c
 }
 
 void Tree::NodoFunc::escribeini(string &mainstring,string nombre){
-	mainstring+=".text\n.globl "+nombre+"\n.type "+nombre+", @function\n"+nombre+":\n";
-	mainstring+="pushl %ebp\nmovl %esp, %ebp\n\n";
+	mainstring=".text\n.globl "+nombre+"\n.type "+nombre+", @function\n"+nombre+":\n"+"pushl %ebp\nmovl %esp, %ebp\n\n"+mainstring;
+	
 }
-
+void Tree::NodoFunc::reservaespacio(string &mainstring,int contador){
+	mainstring="subl	$"+to_string(4*contador)+",	%esp\n"+mainstring;
+}
 void Tree::NodoFunc::escribefin(string &mainstring){
 	mainstring+="movl %ebp, %esp\npopl %ebp\nret\n\n";
 }
-
+void Tree::NodoFunc::ReverseFile(string &mainGlobal,string mainstring){
+	mainGlobal+=mainstring+"\n";
+}
 void Tree::NodoFunc::escriberet(string &mainstring,int a){
 	mainstring+="movl $"+to_string(a)+", %eax\n";
 }
@@ -141,22 +168,24 @@ void Tree::NodoFunc::escriberet(string &mainstring,string a){
 	mainstring+="movl "+a+"\n"+", %eax\n";
 }
 
-void Tree::NodoCall::insertar(string &mainstring,int contador,int cont){
+void Tree::NodoCall::insertar(string &mainstring,int contador,int cont,string aux){
 	switch(cont){
 		case 1:
 			int valor;
 			valor=4+4*contador;
-			mainstring="pushl  -"+to_string(valor)+"(%ebp)\n"+mainstring;
+			mainstring+="pushl  -"+to_string(valor)+"(%ebp)\n";
 			break;
 		case 2:
 			int entero;
 			entero=8+4*contador;
-			mainstring="pushl   "+to_string(entero)+"(%ebp)\n"+mainstring;
+			mainstring+="pushl   "+to_string(entero)+"(%ebp)\n";
 			break;
+		case 3:
+			mainstring+="pushl	 "+aux+"\n";
 	}
 }
 void Tree::NodoCall::insertarnum(string &mainstring,int value){
-	mainstring="pushl	$"+to_string(value)+"\n"+mainstring;
+	mainstring+="pushl	$"+to_string(value)+"\n";
 }
 void Tree::NodoCall::escribellamada(string &mainstring,string callstring,string func,int contador){
 	mainstring+=callstring+"\ncall "+func+"\naddl  $"+to_string(4*contador)+",	%esp\n";

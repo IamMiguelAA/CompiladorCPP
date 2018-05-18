@@ -10,7 +10,11 @@ namespace Tree {
 		public:
 			Node(void){}
 			void finalWrite(std::fstream &file, std::string mainstring);
-			void stringfile(std::fstream &file, int, std::string mainstring);
+			void stringfile(std::fstream &file,  std::string mainstring);
+			void strings(std::string &,int,std::string);
+			void reservaglobales(std::string &,std::string);
+			void declaraglobales(std::string &,std::string,int);
+			void globalesfile(std::fstream &,std::string);
 
 	};
 
@@ -38,7 +42,7 @@ namespace Tree {
 		std::string name;
 		public:
 			NodoId(std::string);
-			void nuevaasign(std::string &,int);
+			void nuevaasign(std::string &,int,int);
 			void escribe(std::string &,int,int);
 	};
 
@@ -108,7 +112,7 @@ namespace Tree {
 		std::string cadena;
 		public:
 			NodoScanf(){}
-			void insertar(std::string &,std::string);
+			void insertar(std::string &,std::string,int ,int);
 			void escribe(std::string &,int ,int, std::string );
 	};
 
@@ -120,6 +124,8 @@ namespace Tree {
 			void escribefin(std::string &);
 			void escriberet(std::string &,std::string);
 			void escriberet(std::string &,int);
+			void reservaespacio(std::string &,int);
+			void ReverseFile(std::string &,std::string );
 	};
 
 	
@@ -127,7 +133,7 @@ namespace Tree {
 	public:
 		NodoCall(){}
 		void escribellamada(std::string &,std::string,std::string,int);
-		void insertar(std::string &,int, int);
+		void insertar(std::string &,int, int,std::string);
 		void insertarnum(std::string &,int);
 	};
 

@@ -11,7 +11,10 @@ using namespace std;
 [ \n\t\r]+	;
 ","		return *yytext;
 "exit"		{yylval.nombre=new string(yytext); return EXIT;}
+"printf"+[(]	{yylval.nombre=new string(yytext); return PRINT;}
+"scanf"+[(]	{yylval.nombre=new string(yytext); return SCAN;}
 "int"+[a-zA-Z  ]+[(] {yylval.nombre=new string(yytext); return FUNC;}
+[a-zA-Z]+[a-zA-Z]*+[(]	{yylval.nombre=new string(yytext); return CALL;}
 "return"	{yylval.nombre = new string (yytext); return RETURN;}
 "#define"	{yylval.nombre = new string (yytext); return DEFINE;}
 "int"		{yylval.nombre = new string (yytext); return INT;}
@@ -21,13 +24,10 @@ using namespace std;
 "OR"		{yylval.nombre=new string(yytext); return OR;}
 "NOT"		{yylval.nombre=new string(yytext); return NOT;}
 "float"		{return FLOAT;}
-"printf"	{yylval.nombre=new string(yytext); return PRINT;}
-"scanf"		{yylval.nombre=new string(yytext); return SCAN;}
 [0-9]+ 		{yylval.valor = atoi(yytext); return NUM;}
 [a-zA-Z]+[a-zA-Z0-9]*	{yylval.nombre = new string (yytext); return ID;}
 [+*-/();=] 	return *yytext;
-[\"]+[a-zA-Z0-9 =+*%  \- \t \r]+	{yylval.nombre=new string(yytext); return cadena;}
-"\""		{yylval.nombre=new string(yytext); return COMI;}
+[\"]+[a-zA-Z0-9 =+*%  \- \t \r]*+[\"]	{yylval.nombre=new string(yytext); return cadena;}
 "=="		{yylval.nombre= new string (yytext); return Log;}
 "<="		{yylval.nombre= new string (yytext); return Log;}
 ">="		{yylval.nombre= new string (yytext); return Log;}
