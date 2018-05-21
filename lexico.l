@@ -13,13 +13,13 @@ using namespace std;
 "exit"		{yylval.nombre=new string(yytext); return EXIT;}
 "printf"+[(]	{yylval.nombre=new string(yytext); return PRINT;}
 "scanf"+[(]	{yylval.nombre=new string(yytext); return SCAN;}
+"if"+[(]		{yylval.nombre= new string (yytext); return IF;}
+"else"		{yylval.nombre= new string (yytext); return ELSE;}
 "int"+[a-zA-Z  ]+[(] {yylval.nombre=new string(yytext); return FUNC;}
 [a-zA-Z]+[a-zA-Z]*+[(]	{yylval.nombre=new string(yytext); return CALL;}
 "return"	{yylval.nombre = new string (yytext); return RETURN;}
 "#define"	{yylval.nombre = new string (yytext); return DEFINE;}
 "int"		{yylval.nombre = new string (yytext); return INT;}
-"if"		{yylval.nombre= new string (yytext); return IF;}
-"else"		{yylval.nombre= new string (yytext); return ELSE;}
 "AND"		{yylval.nombre= new string (yytext); return AND;}
 "OR"		{yylval.nombre=new string(yytext); return OR;}
 "NOT"		{yylval.nombre=new string(yytext); return NOT;}

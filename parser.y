@@ -87,48 +87,48 @@
 	vector<int> IDS;
 
 	varint& buscar(string *n){
-	int it=0;
-	bool encontrado=false;
-	vector<varint>::iterator iterador;
-	iterador=variablesenteras.begin();
-	while(iterador!=variablesenteras.end() && encontrado!=true){
-		if(*(variablesenteras[it].var)==*(n)){
-			encontrado=true;
-		}else{
-			iterador++;
-			it++;
+		int it=0;
+		bool encontrado=false;
+		vector<varint>::iterator iterador;
+		iterador=variablesenteras.begin();
+		while(iterador!=variablesenteras.end() && encontrado!=true){
+			if(*(variablesenteras[it].var)==*(n)){
+				encontrado=true;
+			}else{
+				iterador++;
+				it++;
+			}
 		}
-	}
-	if(encontrado==true){
-	return variablesenteras[it];
-	}
+		if(encontrado==true){
+		return variablesenteras[it];
+		}
 	}
 
 	string imprimir(string s){
 
-	string devolver;
-	int longitud=0;
-	int j=0;
-	s.erase(0,1);
+		string devolver;
+		int longitud=0;
+		int j=0;
+		s.erase(0,1);
 
-	for(int i=0;i<s.length();i++){
+		for(int i=0;i<s.length();i++){
 
-	if(s[i]=='%'){
-	j=i+1;
-	if(s[j]=='d'){
-	int a=IDS.back();
-	IDS.pop_back();
-	devolver+=to_string(a);
-	longitud+=to_string(a).length();
-	i=j;
-	}else{
-	longitud++;
-	devolver.resize(longitud,s[i]);
-	}
-	}else{
-	longitud++;
-	devolver.resize(longitud,s[i]);
-	}
+		if(s[i]=='%'){
+		j=i+1;
+		if(s[j]=='d'){
+		int a=IDS.back();
+		IDS.pop_back();
+		devolver+=to_string(a);
+		longitud+=to_string(a).length();
+		i=j;
+		}else{
+		longitud++;
+		devolver.resize(longitud,s[i]);
+		}
+		}else{
+		longitud++;
+		devolver.resize(longitud,s[i]);
+		}
 	}
 
 	return devolver;
@@ -169,22 +169,44 @@ ent:
 	|ent Declaracion ';' {DecOrExp=0;}
 	|ent exp ';' {}
 	|ent PRINTF ';' {}
-	|ent FUNC param ')' '{'{ enfuncion=1; contadorparametros=0;} ent RETURN {retu=1;} exp ';' {/*funciones.escriberet(mainstring,$10);*/ retu=0;} '}' {string cadena=*$2; string aux=cadena.substr(0,cadena.find("(")); cadena=aux.substr(aux.find(" "));cadena.erase(std::remove(cadena.begin(),cadena.end(),' '),cadena.end()); 	funciones.reservaespacio(mainstring,contadorlocales);		funciones.escribeini(mainstring,cadena); funciones.escribefin(mainstring); funciones.ReverseFile(mainstringGlobal,mainstring); enfuncion=0; contadorlocales=0; locales.clear();parametros.clear(); mainstring="";}
+	|ent FUNC param ')' '{'{ enfuncion=1; contadorparametros=0;} ent '}' {string cadena=*$2; string aux=cadena.substr(0,cadena.find("(")); cadena=aux.substr(aux.find(" "));cadena.erase(std::remove(cadena.begin(),cadena.end(),' '),cadena.end()); 	funciones.reservaespacio(mainstring,contadorlocales);		funciones.escribeini(mainstring,cadena); funciones.escribefin(mainstring); funciones.ReverseFile(mainstringGlobal,mainstring); enfuncion=0; contadorlocales=0; locales.clear();parametros.clear(); mainstring="";}
 	|ent SCANF ';' {std::reverse(auxscanf.begin(),auxscanf.end()); for(int i=0;i<contadorscanf;i++){ string std=auxscanf[i]; int b; cin>>b; variables[std]=b;}} 
 	|ent IFs {}
 	|ent DEFINE ID NUM {if(si==1 || sino==1){variables[*$3]=$4;}}
+	|ent RETURN exp ';' {funciones.escriberet(mainstring,$3); retu=0;}
 	
 ;
+
+
+ent2: {}
+	| ent Declaracion ';' {DecOrExp=0;}
+	| ent exp ';' {}
+	| ent PRINTF ';' {}
+	| ent SCANF ';' {std::reverse(auxscanf.begin(),auxscanf.end()); for(int i=0;i<contadorscanf;i++){ string std=auxscanf[i]; int b; cin>>b; variables[std]=b;}} 
+	| ent IFs {}
+	| ent RETURN exp ';' {funciones.escriberet(mainstring,$3); retu=0;}
+	
+;
+
+ent3: Declaracion ';' {DecOrExp=0;}
+	| exp ';' {}
+	| PRINTF ';' {}
+	| SCANF ';' {std::reverse(auxscanf.begin(),auxscanf.end()); for(int i=0;i<contadorscanf;i++){ string std=auxscanf[i]; int b; cin>>b; variables[std]=b;}} 
+	| RETURN exp ';' {funciones.escriberet(mainstring,$2); retu=0;}
+;
+
 param:
 	|param ',' INT ID {parametros[*$4]=contadorparametros; contadorparametros++;}
 	|INT ID {parametros[*$2]=contadorparametros; contadorparametros++;}
 ;
 
-IFs: IF '(' compa ')'{if(si==0){si=0;sino=0;}else if($3==1){si=1; sino=0;}else{si=0;sino=0;}} '{' ent '}' Elsef
+IFs:  IF compa ')' ent3 Elsef {}
+	| IF compa ')' '{' ent2 '}' Elsef {}
 ;
-Elsef:  
-	|{if(si==0 && sino==0){si=0; sino=1;}else{si=0; sino=0;}} ELSE '{' ent '}' {si=0; sino=0;} 
 
+Elsef:  
+	| ELSE ent3 {} 
+	| ELSE '{' ent2 '}' {}
 ;
 
 Declaracion:  INT ID  Declespe  { if(si==1 || sino==1){variables[*$1]=0; if(enfuncion==1){ contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,*$2);}}}
