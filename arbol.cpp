@@ -84,8 +84,12 @@ void::Tree::NodoId::nuevaasign(string &mainstring,int contador,int cont){
 			valor=4+4*contador;
 			mainstring=mainstring+"movl %eax, -"+to_string(valor)+"(%ebp)\n";
 			break;
+
 	}
 	
+}
+void::Tree::NodoId::global(string &mainstring,string texto){
+	mainstring+="movl	%eax,	"+texto;
 }
 
 void Tree::NodoNum::escribe(string &mainstring){
@@ -185,8 +189,116 @@ void Tree::NodoCall::insertar(string &mainstring,int contador,int cont,string au
 	}
 }
 void Tree::NodoCall::insertarnum(string &mainstring,int value){
-	mainstring+="pushl	$"+to_string(value)+"\n";
+	mainstring+="pushl %eax\n";
 }
 void Tree::NodoCall::escribellamada(string &mainstring,string callstring,string func,int contador){
 	mainstring+=callstring+"\ncall "+func+"\naddl  $"+to_string(4*contador)+",	%esp\n";
+}
+
+void Tree::NodoComp::insertar(string &mainstring){
+	mainstring+="pushl	%eax\n";
+}
+
+void Tree::NodoComp::escribe(string &mainstring){
+	mainstring+="movl	%eax,	%ebx\npopl	%eax\ncmpl	%eax,	%ebx\n";
+}
+void Tree::NodoComp::compara(string &mainstring,int cont,int contador){
+	switch(cont){
+		case 1:
+			mainstring+="jne  ELSE"+to_string(contador)+"\n";
+			break;
+		case 2:
+			mainstring+="jg  ELSE"+to_string(contador)+"\n";
+			break;
+		case 3:
+			mainstring+="jl  ELSE"+to_string(contador)+"\n";
+			break;
+		case 4:
+			mainstring+="je  ELSE"+to_string(contador)+"\n";
+			break;
+		case 5:
+			mainstring+="jge  ELSE"+to_string(contador)+"\n";
+			break;
+		case 6:
+			mainstring+="jle  ELSE"+to_string(contador)+"\n";
+			break;
+
+	}
+}
+void Tree::NodoComp::especial(string &mainstring,int contador,int cont){
+	switch(cont){
+		case 1:
+			mainstring+="jne  AUX"+to_string(contador)+"\n";
+			break;
+		case 2:
+			mainstring+="jg  AUX"+to_string(contador)+"\n";
+			break;
+		case 3:
+			mainstring+="jl  AUX"+to_string(contador)+"\n";
+			break;
+		case 4:
+			mainstring+="je  AUX"+to_string(contador)+"\n";
+			break;
+		case 5:
+			mainstring+="jge  AUX"+to_string(contador)+"\n";
+			break;
+		case 6:
+			mainstring+="jle  AUX"+to_string(contador)+"\n";
+			break;
+
+	}
+}
+void Tree::NodoComp::especialWhile(string &mainstring,int contador,int cont){
+	switch(cont){
+		case 1:
+			mainstring+="jumpl	While"+to_string(contador)+"\n";
+			break;
+		case 2:
+			mainstring+="jumpl	IF"+to_string(contador)+"\n";
+			break;
+	}
+}
+void Tree::NodoComp::escribeAUX(string &mainstring,int contador){
+	mainstring+="AUX"+to_string(contador)+":\n";
+}
+void Tree::NodoIF::escribe(string &mainstring,int contador){
+	mainstring+="IF"+to_string(contador)+":\n";
+}
+void Tree::NodoIF::escribefin(string &mainstring,int contador){
+	mainstring+="jumpl	FINAL"+to_string(contador)+"\n";
+}
+void Tree::NodoELSE::escribe(string &mainstring,int contador){
+	mainstring+="ELSE"+to_string(contador)+":\n";
+}
+void Tree::NodoELSE::escribeconti(string &mainstring,int contador){
+	mainstring+="FINAL"+to_string(contador)+":\n";
+}
+void Tree::NodoWhile::escribeini(string &mainstring,int contador){
+	mainstring+="While"+to_string(contador)+":\n";
+}
+void Tree::NodoWhile::escribefin(string &mainstring,int contador,int contador2){
+	mainstring+="jumpl	While"+to_string(contador)+"\nFINAL"+to_string(contador2)+":\n";
+}
+void Tree::NodoWhile::compara(string &mainstring,int cont,int contador){
+	switch(cont){
+		case 1:
+			mainstring+="jne  FINAL"+to_string(contador)+"\n";
+			break;
+		case 2:
+			mainstring+="jg  FINAL"+to_string(contador)+"\n";
+			break;
+		case 3:
+			mainstring+="jl  FINAL"+to_string(contador)+"\n";
+			break;
+		case 4:
+			mainstring+="je  FINAL"+to_string(contador)+"\n";
+			break;
+		case 5:
+			mainstring+="jge  FINAL"+to_string(contador)+"\n";
+			break;
+		case 6:
+			mainstring+="jle  FINAL"+to_string(contador)+"\n";
+			break;
+
+	}
 }

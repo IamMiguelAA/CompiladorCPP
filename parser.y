@@ -22,6 +22,10 @@
 	NodoScanf scan;
 	NodoFunc funciones;
 	NodoCall call;
+	NodoComp comparaciones;
+	NodoIF	ifs;
+	NodoELSE elses;
+	NodoWhile nwhile;
 
 	//Contadores
 	int DecOrExp=0;
@@ -35,6 +39,19 @@
 	int contadorllamadas;
 	int enllamada=0;
 	int reservaespacio=0;
+	int contadorifs=0;
+	int contadorelse=0;
+	int contadorfinal=0;
+	int contadorwhiles=0;
+	int enwhile=0;
+	int contadoraux=0;
+	int encomplejo=0;
+	int selectedlog=0;
+	
+	vector<int> FinalesJump;
+	vector<int> FINALES;
+	vector<int> ELSES;
+	vector<int> whiles;
 
 	//Maps
 	map<string,int> parametros;
@@ -155,9 +172,10 @@ string * nombre;
 
 
 %token <nombre> ID <valor> NUM <valor2>NUM2
-%token <nombre>INT FLOAT DOUBLE AND OR NOT Log DEFINE  PRINT RETURN SCAN EXIT FUNC CALL
+%token <nombre>INT FLOAT DOUBLE AND OR NOT Log DEFINE  PRINT RETURN SCAN EXIT FUNC CALL WHILE
 %token <nombre> cadena COMI
-%type <valor> comp exp term fact compa compara comparacion dibuj espe
+%type <valor> exp term fact dibuj espe
+%type <nombre> comp compa compara comparacion
 %type <nombre> Declaracion PRINTF SCANF
 %nonassoc IF
 %nonassoc ELSE
@@ -172,8 +190,9 @@ ent:
 	|ent FUNC param ')' '{'{ enfuncion=1; contadorparametros=0;} ent '}' {string cadena=*$2; string aux=cadena.substr(0,cadena.find("(")); cadena=aux.substr(aux.find(" "));cadena.erase(std::remove(cadena.begin(),cadena.end(),' '),cadena.end()); 	funciones.reservaespacio(mainstring,contadorlocales);		funciones.escribeini(mainstring,cadena); funciones.escribefin(mainstring); funciones.ReverseFile(mainstringGlobal,mainstring); enfuncion=0; contadorlocales=0; locales.clear();parametros.clear(); mainstring="";}
 	|ent SCANF ';' {std::reverse(auxscanf.begin(),auxscanf.end()); for(int i=0;i<contadorscanf;i++){ string std=auxscanf[i]; int b; cin>>b; variables[std]=b;}} 
 	|ent IFs {}
-	|ent DEFINE ID NUM {if(si==1 || sino==1){variables[*$3]=$4;}}
-	|ent RETURN exp ';' {funciones.escriberet(mainstring,$3); retu=0;}
+	|ent Whiles {}
+	|ent DEFINE ID NUM {variables[*$3]=$4;}
+	|ent RETURN exp ';' {/*funciones.escriberet(mainstring,$3);*/ retu=0;}
 	
 ;
 
@@ -184,7 +203,8 @@ ent2: {}
 	| ent PRINTF ';' {}
 	| ent SCANF ';' {std::reverse(auxscanf.begin(),auxscanf.end()); for(int i=0;i<contadorscanf;i++){ string std=auxscanf[i]; int b; cin>>b; variables[std]=b;}} 
 	| ent IFs {}
-	| ent RETURN exp ';' {funciones.escriberet(mainstring,$3); retu=0;}
+	| ent Whiles {}
+	| ent RETURN exp ';' {/*funciones.escriberet(mainstring,$3);*/ retu=0;}
 	
 ;
 
@@ -192,7 +212,8 @@ ent3: Declaracion ';' {DecOrExp=0;}
 	| exp ';' {}
 	| PRINTF ';' {}
 	| SCANF ';' {std::reverse(auxscanf.begin(),auxscanf.end()); for(int i=0;i<contadorscanf;i++){ string std=auxscanf[i]; int b; cin>>b; variables[std]=b;}} 
-	| RETURN exp ';' {funciones.escriberet(mainstring,$2); retu=0;}
+	| Whiles {}
+	| RETURN exp ';' {/*funciones.escriberet(mainstring,$2);*/ retu=0;}
 ;
 
 param:
@@ -200,24 +221,28 @@ param:
 	|INT ID {parametros[*$2]=contadorparametros; contadorparametros++;}
 ;
 
-IFs:  IF compa ')' ent3 Elsef {}
-	| IF compa ')' '{' ent2 '}' Elsef {}
+Whiles: WHILE {enwhile=1; whiles.push_back(contadorwhiles); nwhile.escribeini(mainstring,whiles.back()); contadorwhiles++; } compa {{if(encomplejo==0){nwhile.compara(mainstring,selectedlog,contadorfinal);}}} ')' '{'{FINALES.push_back(contadorfinal); contadorfinal++; } ent '}' {nwhile.escribefin(mainstring,whiles.back(),FINALES.back()); whiles.pop_back(); FINALES.pop_back(); enwhile=0;}
+
 ;
 
-Elsef:  
-	| ELSE ent3 {} 
-	| ELSE '{' ent2 '}' {}
+IFs:  IF compa ')'{ if(encomplejo==0){ comparaciones.compara(mainstring,selectedlog,contadorelse);}  ifs.escribe(mainstring,contadorifs); ELSES.push_back(contadorelse); FINALES.push_back(contadorfinal); FinalesJump.push_back(contadorfinal); contadorifs++; contadorelse++;contadorfinal++;} ent3 {ifs.escribefin(mainstring,FinalesJump.back()); FinalesJump.pop_back();  } Elsef {}
+	| IF compa ')' '{' {  if(encomplejo==0){ comparaciones.compara(mainstring,selectedlog,contadorelse);}  ifs.escribe(mainstring,contadorifs); ELSES.push_back(contadorelse); FINALES.push_back(contadorfinal); FinalesJump.push_back(contadorfinal); contadorifs++; contadorelse++;contadorfinal++;} ent2 '}' {ifs.escribefin(mainstring,FinalesJump.back()); FinalesJump.pop_back(); } Elsef {}
 ;
 
-Declaracion:  INT ID  Declespe  { if(si==1 || sino==1){variables[*$1]=0; if(enfuncion==1){ contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,*$2);}}}
-		|ID '=' {DecOrExp=1;} exp {if(si==1 || sino==1){variables[*$1]=$4; if(enfuncion==1){auto id=new NodoId(*$1); id->nuevaasign(mainstring,contadorlocales,1); locales[*$1]=contadorlocales;fichero<<endl; contadorlocales++;}else if(enfuncion==0){globales[*$1]=$4; nodo.reservaglobales(globreserva,*$1); nodo.declaraglobales(globdeclara,*$1,$4);}}}
-		|INT ID '=' {DecOrExp=1;} exp {if(si==1 || sino==1){variables[*$2]=$5; if(enfuncion==1){auto id=new NodoId(*$1); id->nuevaasign(mainstring,contadorlocales,1); locales[*$2]=contadorlocales;fichero<<endl; contadorlocales++;}else if(enfuncion==0){globales[*$2]=$5; nodo.reservaglobales(globreserva,*$2); nodo.declaraglobales(globdeclara,*$2,$5);}}}
+Elsef:  {elses.escribeconti(mainstring,FINALES.back()); ELSES.pop_back(); FINALES.pop_back();}
+	| ELSE {elses.escribe(mainstring,ELSES.back()); ELSES.pop_back(); } ent3 {elses.escribeconti(mainstring,FINALES.back()); FINALES.pop_back(); } 
+	| ELSE '{'{elses.escribe(mainstring,ELSES.back()); ELSES.pop_back(); } ent2 '}' {elses.escribeconti(mainstring,FINALES.back()); FINALES.pop_back(); }
+;
+
+Declaracion:  INT ID  Declespe  {variables[*$1]=0; if(enfuncion==1){ contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,*$2);}}
+		|ID '=' {DecOrExp=1;} exp {variables[*$1]=$4; if(enfuncion==1){if(locales.find(*$1)!=locales.end()){auto id=new NodoId(*$1); id->nuevaasign(mainstring,contadorlocales,1); locales[*$1]=contadorlocales;fichero<<endl; contadorlocales++;}else if(globales.find(*$1)!=globales.end()){globales[*$1]=$4; auto id=new NodoId(*$1); id->global(mainstring,*$1); fichero<<endl;}}else if(enfuncion==0){globales[*$1]=$4; nodo.reservaglobales(globreserva,*$1); nodo.declaraglobales(globdeclara,*$1,$4);}}
+		|INT ID '=' {DecOrExp=1;} exp {variables[*$2]=$5; if(enfuncion==1){auto id=new NodoId(*$1); id->nuevaasign(mainstring,contadorlocales,1); locales[*$2]=contadorlocales;fichero<<endl; contadorlocales++;}else if(enfuncion==0){globales[*$2]=$5; nodo.reservaglobales(globreserva,*$2); nodo.declaraglobales(globdeclara,*$2,$5);}}
 		|INT ID '[' NUM ']' 
 
 ;
 Declespe: 
-	|',' ID Declespe { if(si==1 || sino==1){variables[*$2]=0; if(enfuncion==1){ contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,*$2);}}}
-	|ID { if(si==1 || sino==1){variables[*$1]=0; if(enfuncion==1){ contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,*$1);}}}
+	|',' ID Declespe {variables[*$2]=0; if(enfuncion==1){ contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,*$2);}}
+	|ID { variables[*$1]=0; if(enfuncion==1){ contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,*$1);}}
 ;
 PRINTF: PRINT  cadena  ','{enllamada=1;} dibuj ')' {string s=*$2;  contadorliberaespacio++;  nodo.strings(stringtotales,contadorstrings,s); print.escribe(mainstring,contadorstrings,contadorliberaespacio, cadforprintf);  cadforprintf=""; contadorstrings=1+contadorstrings;contadorliberaespacio=0; enllamada=0;}
 	|PRINT   cadena  ')' {string s=*$2;  contadorliberaespacio++; nodo.strings(stringtotales,contadorstrings,s); print.escribe(mainstring,contadorstrings,contadorliberaespacio, ""); contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
@@ -236,43 +261,37 @@ espe:	{$$=0;}
 ;
 
 
-comp: ID Log ID {int a=variables[*$1]; int b=variables[*$3]; if(*$2=="=="){if(a==b){$$=1;}else{$$=0;}}else if(*$2=="<="){if(a<=b){$$=1;}else{$$=0;}}else if(*$2==">="){if(a>=b){$$=1;}else{$$=0;}}else if(*$2=="!="){if(a!=b){$$=1;}else{$$=0;}}}
-
-	|ID Log NUM {int a=variables[*$1]; if(*$2=="=="){if(a==$3){$$=1;}else{$$=0;}}else if(*$2=="<="){if(a<=$3){$$=1;}else{$$=0;}}else if(*$2==">="){if(a>=$3){$$=1;}else{$$=0;}}else if(*$2=="!="){if(a!=$3){$$=1;}else{$$=0;}}}
-
-	|NUM Log ID {int a=variables[*$3]; if(*$2=="=="){if(a==$1){$$=1;}else{$$=0;}}else if(*$2=="<="){if($1<=a){$$=1;}else{$$=0;}}else if(*$2==">="){if($1>=a){$$=1;}else{$$=0;}}else if(*$2=="!="){if(a!=$1){$$=1;}else{$$=0;}}}
-
-	|NUM Log NUM {if(*$2=="=="){if($1==$3){$$=1;}else{$$=0;}}else if(*$2=="<="){if($1<=$3){$$=1;}else{$$=0;}}else if(*$2==">="){if($1>=$3){$$=1;}else{$$=0;}}else if(*$2=="!="){if($1!=$3){$$=1;}else{$$=0;}}}
+comp: exp Log { comparaciones.insertar(mainstring);} exp {$$=$2; comparaciones.escribe(mainstring);}
 	
 ;
 
-compa: compa OR compara {if($1==0 && $3==0){$$=0;}else{$$=1;}}
+compa: compa { encomplejo=1;   if(*$1=="=="){comparaciones.especial(mainstring,contadoraux,1);}else if(*$1=="<="){comparaciones.especial(mainstring,contadoraux,2);}else if(*$1==">="){comparaciones.especial(mainstring,contadoraux,3);}else if(*$1=="!="){comparaciones.especial(mainstring,contadoraux,4);}else if(*$1=="<"){comparaciones.especial(mainstring,contadoraux,5);}else if(*$1==">"){comparaciones.especial(mainstring,contadoraux,6);} if(enwhile==1){comparaciones.especialWhile(mainstring,contadorwhiles,1); comparaciones.escribeAUX(mainstring,contadoraux);}else{comparaciones.especialWhile(mainstring,contadorifs,2); comparaciones.escribeAUX(mainstring,contadoraux);} contadoraux++;} OR compara {if(*$4=="=="){if(enwhile==1){nwhile.compara(mainstring,1,contadorfinal);}else{comparaciones.compara(mainstring,1,contadorelse);}}else if(*$4=="<="){if(enwhile==1){nwhile.compara(mainstring,2,contadorfinal);}else{comparaciones.compara(mainstring,2,contadorelse);}}else if(*$4==">="){if(enwhile==1){nwhile.compara(mainstring,3,contadorfinal);}else{comparaciones.compara(mainstring,3,contadorelse);}}else if(*$4=="!="){if(enwhile==1){nwhile.compara(mainstring,4,contadorfinal);}else{comparaciones.compara(mainstring,4,contadorelse);}}else if(*$4=="<"){if(enwhile==1){nwhile.compara(mainstring,5,contadorfinal);}else{comparaciones.compara(mainstring,5,contadorelse);}}else if(*$4==">"){if(enwhile==1){nwhile.compara(mainstring,6,contadorfinal);}else{comparaciones.compara(mainstring,6,contadorelse);}}}
 	|compara {$$=$1;}
 ;
-compara: compara AND comparacion {if($1==1 && $3==1){$$=1;}else{$$=0;}}
+compara: compara{encomplejo=1;    if(*$1=="=="){if(enwhile==1){nwhile.compara(mainstring,1,contadorfinal);}else{comparaciones.compara(mainstring,1,contadorelse);}}else if(*$1=="<="){if(enwhile==1){nwhile.compara(mainstring,2,contadorfinal);}else{comparaciones.compara(mainstring,2,contadorelse);}}else if(*$1==">="){if(enwhile==1){nwhile.compara(mainstring,3,contadorfinal);}else{comparaciones.compara(mainstring,3,contadorelse);}}else if(*$1=="!="){if(enwhile==1){nwhile.compara(mainstring,4,contadorfinal);}else{comparaciones.compara(mainstring,4,contadorelse);}}else if(*$1=="<"){if(enwhile==1){nwhile.compara(mainstring,5,contadorfinal);}else{comparaciones.compara(mainstring,5,contadorelse);}}else if(*$1==">"){if(enwhile==1){nwhile.compara(mainstring,6,contadorfinal);}else{comparaciones.compara(mainstring,6,contadorelse);}}} AND comparacion { if(*$4=="=="){if(enwhile==1){nwhile.compara(mainstring,1,contadorfinal);}else{comparaciones.compara(mainstring,1,contadorelse);}}else if(*$4=="<="){if(enwhile==1){nwhile.compara(mainstring,2,contadorfinal);}else{comparaciones.compara(mainstring,2,contadorelse);}}else if(*$4==">="){if(enwhile==1){nwhile.compara(mainstring,3,contadorfinal);}else{comparaciones.compara(mainstring,3,contadorelse);}}else if(*$4=="!="){if(enwhile==1){nwhile.compara(mainstring,4,contadorfinal);}else{comparaciones.compara(mainstring,4,contadorelse);}}else if(*$4=="<"){if(enwhile==1){nwhile.compara(mainstring,5,contadorfinal);}else{comparaciones.compara(mainstring,5,contadorelse);}}else if(*$4==">"){if(enwhile==1){nwhile.compara(mainstring,6,contadorfinal);}else{comparaciones.compara(mainstring,6,contadorelse);}}}
 	|comparacion {$$=$1;}
 ;
-comparacion: NOT comparacion {if($2==1){$$=0;}else{$$=1;}}
-		|comp {$$=$1;}
-		|'(' compa ')' {$$=$2;}
+comparacion: NOT {encomplejo=1;} comparacion {$$=$3;}
+		|comp {$$=$1; if(*$1=="=="){selectedlog=1;}else if(*$1=="<="){selectedlog=2;}else if(*$1==">="){selectedlog=3;}else if(*$1=="!="){selectedlog=4;}else if(*$1=="<"){selectedlog=5;}else if(*$1==">"){selectedlog=6;}}
+		|'(' compa ')' {}
 ;
 
 
 
-exp: exp{suma.escribepush(mainstring); fichero<<endl; } '+' term {$$=$1+$4;  suma=*(new NodoSuma($1,$4)); suma.escribe(mainstring); fichero<<endl;}
-	|exp{resta.escribepush(mainstring); fichero<<endl; } '-' term {$$=$1-$4; resta=*(new NodoResta($1,$4)); resta.escribe(mainstring); fichero<<endl;}
-	|term	{$$=$1;}
+exp: exp{if(enllamada==1){}else{suma.escribepush(mainstring);}fichero<<endl; } '+' term {$$=$1+$4;  suma=*(new NodoSuma($1,$4)); suma.escribe(mainstring); if(enllamada==1){call.insertarnum(mainstring,$1);} fichero<<endl;}
+	|exp{if(enllamada==1){}else{suma.escribepush(mainstring);}fichero<<endl; } '-' term {$$=$1-$4; resta=*(new NodoResta($1,$4)); resta.escribe(mainstring);if(enllamada==1){call.insertarnum(mainstring,$1);} fichero<<endl;}
+	|term	{$$=$1; if(enllamada==1){call.insertarnum(mainstring,$1);}}
 ;
 
-term: term {multi.escribepush(mainstring); fichero<<endl; } '*' fact {$$=$1*$4; multi=*(new NodoMul($1,$4)); multi.escribe(mainstring); fichero<<endl;}
-	|term {divi.escribepush(mainstring); fichero<<endl; } '/' fact {$$=$1/$4;  divi=*(new NodoDiv($1,$4)); divi.escribe(mainstring); fichero<<endl;}
+term: term {multi.escribepush(mainstring); fichero<<endl; } '*' fact {$$=$1*$4; multi=*(new NodoMul($1,$4)); multi.escribe(mainstring);   fichero<<endl;}
+	|term {divi.escribepush(mainstring); fichero<<endl; } '/' fact {$$=$1/$4;  divi=*(new NodoDiv($1,$4)); divi.escribe(mainstring);  fichero<<endl;}
 	|fact {$$=$1;}
 ;
-fact: NUM {$$=$1; if(enllamada==1){call.insertarnum(mainstring,$1);}else if (enfuncion==1 && retu!=1 ){auto num=new NodoNum($1); num->escribe(mainstring); fichero<<endl;}}
-	|'-' NUM {$$=-$2; if(enllamada==1){call.insertarnum(mainstring,-$2);} else if (enfuncion==1 && retu!=1 ){auto num=new NodoNum(-$2); num->escribe(mainstring); fichero<<endl;}}
+fact: NUM {$$=$1; /*if(enllamada==1){call.insertarnum(mainstring,$1);}else */if (enfuncion==1 && retu!=1 ){auto num=new NodoNum($1); num->escribe(mainstring); fichero<<endl;}}
+	|'-' NUM {$$=-$2; /*if(enllamada==1){call.insertarnum(mainstring,-$2);} else*/ if (enfuncion==1 && retu!=1 ){auto num=new NodoNum(-$2); num->escribe(mainstring); fichero<<endl;}}
 	|'(' exp ')' {$$=$2;}
-	|ID {/*varint a=buscar($1); $$=a.nu;*/ $$=variables[*$1];if(enllamada==1){if(locales.find(*$1)!=locales.end()){int aux=buscarenmap(*$1,locales); call.insertar(mainstring,aux,1,"");}else if(parametros.find(*$1)!=parametros.end()){int aux=buscarenmap(*$1,parametros); call.insertar(mainstring,aux,2,"");}else if(globales.find(*$1)!=globales.end()){int aux=buscarenmap(*$1,globales);auto id=new NodoId(*$1); call.insertar(mainstring,aux,3,*$1);}
-}else if(enfuncion==1){if(locales.find(*$1)!=locales.end()){int aux=buscarenmap(*$1,locales);auto id=new NodoId(*$1); id->escribe(mainstring,1,aux); fichero<<endl;}else if(parametros.find(*$1)!=parametros.end()){int aux=buscarenmap(*$1,parametros);auto id=new NodoId(*$1); id->escribe(mainstring,2,aux); fichero<<endl;}else if(globales.find(*$1)!=globales.end()){int aux=buscarenmap(*$1,globales);auto id=new NodoId(*$1); id->escribe(mainstring,3,aux);}}
+	|ID {/*varint a=buscar($1); $$=a.nu;*/ $$=variables[*$1];/*if(enllamada==1){if(locales.find(*$1)!=locales.end()){int aux=buscarenmap(*$1,locales); call.insertar(mainstring,aux,1,"");}else if(parametros.find(*$1)!=parametros.end()){int aux=buscarenmap(*$1,parametros); call.insertar(mainstring,aux,2,"");}else if(globales.find(*$1)!=globales.end()){int aux=buscarenmap(*$1,globales);auto id=new NodoId(*$1); call.insertar(mainstring,aux,3,*$1);}
+}else*/ if(enfuncion==1){if(locales.find(*$1)!=locales.end()){int aux=buscarenmap(*$1,locales);auto id=new NodoId(*$1); id->escribe(mainstring,1,aux); fichero<<endl;}else if(parametros.find(*$1)!=parametros.end()){int aux=buscarenmap(*$1,parametros);auto id=new NodoId(*$1); id->escribe(mainstring,2,aux); fichero<<endl;}else if(globales.find(*$1)!=globales.end()){int aux=buscarenmap(*$1,globales);auto id=new NodoId(*$1); id->escribe(mainstring,3,aux);}}
 }
 	|CALL{enllamada=1;} especialcall ')' {string cadena=*$1; string aux=cadena.substr(0,cadena.find("(")); aux.erase(std::remove(aux.begin(),aux.end(),' '),aux.end()); enllamada=0; call.escribellamada(mainstring,llamada,aux,contadorllamadas);	contadorllamadas=0; llamada="";}
 ;

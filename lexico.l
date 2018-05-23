@@ -15,14 +15,14 @@ using namespace std;
 "scanf"+[(]	{yylval.nombre=new string(yytext); return SCAN;}
 "if"+[(]		{yylval.nombre= new string (yytext); return IF;}
 "else"		{yylval.nombre= new string (yytext); return ELSE;}
+"while"+[(]	{yylval.nombre= new string (yytext); return WHILE;}
 "int"+[a-zA-Z  ]+[(] {yylval.nombre=new string(yytext); return FUNC;}
 [a-zA-Z]+[a-zA-Z]*+[(]	{yylval.nombre=new string(yytext); return CALL;}
 "return"	{yylval.nombre = new string (yytext); return RETURN;}
 "#define"	{yylval.nombre = new string (yytext); return DEFINE;}
 "int"		{yylval.nombre = new string (yytext); return INT;}
-"AND"		{yylval.nombre= new string (yytext); return AND;}
-"OR"		{yylval.nombre=new string(yytext); return OR;}
-"NOT"		{yylval.nombre=new string(yytext); return NOT;}
+"&&"		{yylval.nombre= new string (yytext); return AND;}
+"||"		{yylval.nombre=new string(yytext); return OR;}
 "float"		{return FLOAT;}
 [0-9]+ 		{yylval.valor = atoi(yytext); return NUM;}
 [a-zA-Z]+[a-zA-Z0-9]*	{yylval.nombre = new string (yytext); return ID;}
@@ -32,6 +32,9 @@ using namespace std;
 "<="		{yylval.nombre= new string (yytext); return Log;}
 ">="		{yylval.nombre= new string (yytext); return Log;}
 "!="		{yylval.nombre= new string (yytext); return Log;}
+">"		{yylval.nombre= new string (yytext); return Log;}
+"<"		{yylval.nombre= new string (yytext); return Log;}
+"!"		{yylval.nombre=new string(yytext); return NOT;}
 "{"		return *yytext;
 "}"		return *yytext;
 "["		return *yytext;

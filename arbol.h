@@ -44,6 +44,7 @@ namespace Tree {
 			NodoId(std::string);
 			void nuevaasign(std::string &,int,int);
 			void escribe(std::string &,int,int);
+			void global(std::string &,std::string);
 	};
 
 
@@ -135,6 +136,36 @@ namespace Tree {
 		void escribellamada(std::string &,std::string,std::string,int);
 		void insertar(std::string &,int, int,std::string);
 		void insertarnum(std::string &,int);
+	};
+
+	class NodoComp: public Node{
+	public:
+		NodoComp(){}
+		void insertar(std::string &);
+		void escribe(std::string &);
+		void compara(std::string &,int,int);
+		void especial(std::string &,int,int);
+		void especialWhile(std::string &,int,int);
+		void escribeAUX(std::string &,int);
+	};
+	class NodoIF: public Node{
+	public:
+		NodoIF(){}
+		void escribe(std::string &,int);
+		void escribefin(std::string &,int);
+	};
+	class NodoELSE: public Node{
+	public: 
+		NodoELSE(){}
+		void escribe(std::string &,int);
+		void escribeconti(std::string &,int);
+	};
+	class NodoWhile: public Node{
+	public:
+		NodoWhile(){}
+		void escribeini(std::string &,int);
+		void escribefin(std::string &,int,int);
+		void compara(std::string &,int,int);
 	};
 
 	const int Max = 80;
