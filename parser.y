@@ -234,15 +234,20 @@ Elsef:  {elses.escribeconti(mainstring,FINALES.back()); ELSES.pop_back(); FINALE
 	| ELSE '{'{elses.escribe(mainstring,ELSES.back()); ELSES.pop_back(); } ent2 '}' {elses.escribeconti(mainstring,FINALES.back()); FINALES.pop_back(); }
 ;
 
-Declaracion:  INT ID  Declespe  {variables[*$1]=0; if(enfuncion==1){ contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,*$2);}}
-		|ID '=' {DecOrExp=1;} exp {variables[*$1]=$4; if(enfuncion==1){if(locales.find(*$1)!=locales.end()){auto id=new NodoId(*$1); id->nuevaasign(mainstring,contadorlocales,1); locales[*$1]=contadorlocales;fichero<<endl; contadorlocales++;}else if(globales.find(*$1)!=globales.end()){globales[*$1]=$4; auto id=new NodoId(*$1); id->global(mainstring,*$1); fichero<<endl;}}else if(enfuncion==0){globales[*$1]=$4; nodo.reservaglobales(globreserva,*$1); nodo.declaraglobales(globdeclara,*$1,$4);}}
+Declaracion:  INT ID  Declespe  {variables[*$1]=0; if(enfuncion==1){ locales[*$2]=contadorlocales; contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,*$2);}}
+		|ID '=' {DecOrExp=1;} exp {variables[*$1]=$4; if(enfuncion==1){if(locales.find(*$1)!=locales.end()){auto id=new NodoId(*$1); id->nuevaasign(mainstring,contadorlocales,1); locales[*$1]=contadorlocales;fichero<<endl; }else if(globales.find(*$1)!=globales.end()){globales[*$1]=$4; auto id=new NodoId(*$1); id->global(mainstring,*$1); fichero<<endl;}}else if(enfuncion==0){globales[*$1]=$4; nodo.reservaglobales(globreserva,*$1); nodo.declaraglobales(globdeclara,*$1,$4);}}
 		|INT ID '=' {DecOrExp=1;} exp {variables[*$2]=$5; if(enfuncion==1){auto id=new NodoId(*$1); id->nuevaasign(mainstring,contadorlocales,1); locales[*$2]=contadorlocales;fichero<<endl; contadorlocales++;}else if(enfuncion==0){globales[*$2]=$5; nodo.reservaglobales(globreserva,*$2); nodo.declaraglobales(globdeclara,*$2,$5);}}
-		|INT ID '[' NUM ']' 
-
+		|INT ID '[' NUM ']' {int i; for(i=0;i<$4;i++){string cad=*$2+to_string(i); variables[cad]=0;if(enfuncion==1){ locales[cad]=contadorlocales; contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,cad);}}}
+		|INT '*' ID Declespe {}
+		|INT '&' ID Declespe {}
+		|INT '&' ID '=' exp {}
+		|INT '*' ID '=' exp {}
 ;
 Declespe: 
-	|',' ID Declespe {variables[*$2]=0; if(enfuncion==1){ contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,*$2);}}
+	|',' Declespe {/*variables[*$2]=0; if(enfuncion==1){ contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,*$2);}*/}
 	|ID { variables[*$1]=0; if(enfuncion==1){ contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,*$1);}}
+	| '&' ID
+	| '*' ID
 ;
 PRINTF: PRINT  cadena  ','{enllamada=1;} dibuj ')' {string s=*$2;  contadorliberaespacio++;  nodo.strings(stringtotales,contadorstrings,s); print.escribe(mainstring,contadorstrings,contadorliberaespacio, cadforprintf);  cadforprintf=""; contadorstrings=1+contadorstrings;contadorliberaespacio=0; enllamada=0;}
 	|PRINT   cadena  ')' {string s=*$2;  contadorliberaespacio++; nodo.strings(stringtotales,contadorstrings,s); print.escribe(mainstring,contadorstrings,contadorliberaespacio, ""); contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
@@ -294,6 +299,8 @@ fact: NUM {$$=$1; /*if(enllamada==1){call.insertarnum(mainstring,$1);}else */if 
 }else*/ if(enfuncion==1){if(locales.find(*$1)!=locales.end()){int aux=buscarenmap(*$1,locales);auto id=new NodoId(*$1); id->escribe(mainstring,1,aux); fichero<<endl;}else if(parametros.find(*$1)!=parametros.end()){int aux=buscarenmap(*$1,parametros);auto id=new NodoId(*$1); id->escribe(mainstring,2,aux); fichero<<endl;}else if(globales.find(*$1)!=globales.end()){int aux=buscarenmap(*$1,globales);auto id=new NodoId(*$1); id->escribe(mainstring,3,aux);}}
 }
 	|CALL{enllamada=1;} especialcall ')' {string cadena=*$1; string aux=cadena.substr(0,cadena.find("(")); aux.erase(std::remove(aux.begin(),aux.end(),' '),aux.end()); enllamada=0; call.escribellamada(mainstring,llamada,aux,contadorllamadas);	contadorllamadas=0; llamada="";}
+	| '&' ID {}
+	| '*' ID {}
 ;
 especialcall:
 		|especialcall ',' exp { contadorllamadas++;}
