@@ -26,6 +26,7 @@
 	NodoIF	ifs;
 	NodoELSE elses;
 	NodoWhile nwhile;
+	Tipos check_types;
 
 	//Contadores
 	int DecOrExp=0;
@@ -59,7 +60,10 @@
 	map<string,int> globales;
 	map<string,int> variables;
 
-
+	//Maps for type checking
+	map<string,string> variables_types;
+	map<string,string> funciones_types;
+	string string_check_types;
 
 	//String for the printf function.
 	string cadforprintf="";
@@ -172,7 +176,7 @@ string * nombre;
 
 
 %token <nombre> ID <valor> NUM <valor2>NUM2
-%token <nombre>INT FLOAT DOUBLE AND OR NOT Log DEFINE  PRINT RETURN SCAN EXIT FUNC CALL WHILE
+%token <nombre>INT FLOAT DOUBLE AND OR NOT Log DEFINE  PRINT RETURN SCAN EXIT FUNC CALL FEOFF WHILE VOID
 %token <nombre> cadena COMI
 %type <valor> exp term fact dibuj espe
 %type <nombre> comp compa compara comparacion
@@ -182,17 +186,18 @@ string * nombre;
 %start ent
 
 %%
-ent: 
-	|ent EXIT {nodo.globalesfile(fichero,globreserva); nodo.globalesfile(fichero,globdeclara); nodo.stringfile(fichero,stringtotales);nodo.finalWrite(fichero,mainstringGlobal);YYABORT;}
+ent:
+	|ent FEOFF {nodo.globalesfile(fichero,globreserva); nodo.globalesfile(fichero,globdeclara); nodo.stringfile(fichero,stringtotales);nodo.finalWrite(fichero,mainstringGlobal);YYABORT;}
 	|ent Declaracion ';' {DecOrExp=0;}
 	|ent exp ';' {}
 	|ent PRINTF ';' {}
-	|ent FUNC param ')' '{'{ enfuncion=1; contadorparametros=0;} ent '}' {string cadena=*$2; string aux=cadena.substr(0,cadena.find("(")); cadena=aux.substr(aux.find(" "));cadena.erase(std::remove(cadena.begin(),cadena.end(),' '),cadena.end()); 	funciones.reservaespacio(mainstring,contadorlocales);		funciones.escribeini(mainstring,cadena); funciones.escribefin(mainstring); funciones.ReverseFile(mainstringGlobal,mainstring); enfuncion=0; contadorlocales=0; locales.clear();parametros.clear(); mainstring="";}
-	|ent SCANF ';' {std::reverse(auxscanf.begin(),auxscanf.end()); for(int i=0;i<contadorscanf;i++){ string std=auxscanf[i]; int b; cin>>b; variables[std]=b;}} 
+	|ent VOID CALL param ')' '{'{ enfuncion=1; contadorparametros=0;} ent '}' {string cadena=*$3; cadena=cadena.substr(0,cadena.find("("));	funciones_types[cadena]="void"; funciones.reservaespacio(mainstring,contadorlocales);		funciones.escribeini(mainstring,cadena); funciones.escribefin(mainstring); funciones.ReverseFile(mainstringGlobal,mainstring); enfuncion=0; contadorlocales=0; locales.clear();parametros.clear(); mainstring="";}
+	|ent INT CALL param ')' '{'{ enfuncion=1; contadorparametros=0;} ent '}' {string cadena=*$3; cadena=cadena.substr(0,cadena.find("("));	funciones_types[cadena]="int"; funciones.reservaespacio(mainstring,contadorlocales);		funciones.escribeini(mainstring,cadena); funciones.escribefin(mainstring); funciones.ReverseFile(mainstringGlobal,mainstring); enfuncion=0; contadorlocales=0; locales.clear();parametros.clear(); mainstring="";}
+	|ent SCANF ';' {std::reverse(auxscanf.begin(),auxscanf.end()); for(int i=0;i<contadorscanf;i++){ string std=auxscanf[i]; int b; variables[std]=b;}} 
 	|ent IFs {}
 	|ent Whiles {}
 	|ent DEFINE ID NUM {variables[*$3]=$4;}
-	|ent RETURN exp ';' {/*funciones.escriberet(mainstring,$3);*/ retu=0;}
+	|ent RETURN exp ';' {retu=0;}
 	
 ;
 
@@ -201,19 +206,19 @@ ent2: {}
 	| ent Declaracion ';' {DecOrExp=0;}
 	| ent exp ';' {}
 	| ent PRINTF ';' {}
-	| ent SCANF ';' {std::reverse(auxscanf.begin(),auxscanf.end()); for(int i=0;i<contadorscanf;i++){ string std=auxscanf[i]; int b; cin>>b; variables[std]=b;}} 
+	| ent SCANF ';' {std::reverse(auxscanf.begin(),auxscanf.end()); for(int i=0;i<contadorscanf;i++){ string std=auxscanf[i]; int b; variables[std]=b;}} 
 	| ent IFs {}
 	| ent Whiles {}
-	| ent RETURN exp ';' {/*funciones.escriberet(mainstring,$3);*/ retu=0;}
+	| ent RETURN exp ';' {retu=0;}
 	
 ;
 
 ent3: Declaracion ';' {DecOrExp=0;}
 	| exp ';' {}
 	| PRINTF ';' {}
-	| SCANF ';' {std::reverse(auxscanf.begin(),auxscanf.end()); for(int i=0;i<contadorscanf;i++){ string std=auxscanf[i]; int b; cin>>b; variables[std]=b;}} 
+	| SCANF ';' {std::reverse(auxscanf.begin(),auxscanf.end()); for(int i=0;i<contadorscanf;i++){ string std=auxscanf[i]; int b; variables[std]=b;}} 
 	| Whiles {}
-	| RETURN exp ';' {/*funciones.escriberet(mainstring,$2);*/ retu=0;}
+	| RETURN exp ';' {retu=0;}
 ;
 
 param:
@@ -234,27 +239,28 @@ Elsef:  {elses.escribeconti(mainstring,FINALES.back()); ELSES.pop_back(); FINALE
 	| ELSE '{'{elses.escribe(mainstring,ELSES.back()); ELSES.pop_back(); } ent2 '}' {elses.escribeconti(mainstring,FINALES.back()); FINALES.pop_back(); }
 ;
 
-Declaracion:  INT ID  Declespe  {variables[*$1]=0; if(enfuncion==1){ locales[*$2]=contadorlocales; contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,*$2);}}
-		|ID '=' {DecOrExp=1;} exp {variables[*$1]=$4; if(enfuncion==1){if(locales.find(*$1)!=locales.end()){auto id=new NodoId(*$1); id->nuevaasign(mainstring,locales[*$1],1); /*locales[*$1]=contadorlocales;*/ fichero<<endl; }else if(globales.find(*$1)!=globales.end()){globales[*$1]=$4; auto id=new NodoId(*$1); id->global(mainstring,*$1); fichero<<endl;}}else if(enfuncion==0){globales[*$1]=$4; nodo.reservaglobales(globreserva,*$1); nodo.declaraglobales(globdeclara,*$1,$4);}}
-		|INT ID '=' {DecOrExp=1;} exp {variables[*$2]=$5; if(enfuncion==1){auto id=new NodoId(*$1); id->nuevaasign(mainstring,contadorlocales,1); locales[*$2]=contadorlocales;fichero<<endl; contadorlocales++;}else if(enfuncion==0){globales[*$2]=$5; nodo.reservaglobales(globreserva,*$2); nodo.declaraglobales(globdeclara,*$2,$5);}}
-		|INT ID '[' NUM ']' {int i; for(i=0;i<$4;i++){string cad=*$2+to_string(i); variables[cad]=0;if(enfuncion==1){ locales[cad]=contadorlocales; contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,cad);}}}
+Declaracion:  INT ID  Declespe  {variables_types[*$2]="int";variables[*$1]=0; if(enfuncion==1){ locales[*$2]=contadorlocales; contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,*$2);}}
+		|ID '=' {DecOrExp=1;} exp {if(string_check_types.compare("")==0){$4=check_types.check_literal(to_string($4));} if((funciones_types.find(string_check_types)!=funciones_types.end()) && (string_check_types.compare("")!=0) &&(variables_types.find(*$1)!=variables_types.end())){check_types.check_tipos_func(variables_types[*$1],funciones_types[string_check_types]); string_check_types="";} variables[*$1]=$4; if(enfuncion==1){if(locales.find(*$1)!=locales.end()){auto id=new NodoId(*$1); id->nuevaasign(mainstring,locales[*$1],1); fichero<<endl; }else if(globales.find(*$1)!=globales.end()){globales[*$1]=$4; auto id=new NodoId(*$1); id->global(mainstring,*$1); fichero<<endl;}}else if(enfuncion==0){globales[*$1]=$4; nodo.reservaglobales(globreserva,*$1); nodo.declaraglobales(globdeclara,*$1,$4);}}
+		|ID '[' NUM ']' '=' {DecOrExp=1;} exp {*$1=*$1+"["+to_string($3)+"]";if(string_check_types.compare("")==0){$7=check_types.check_literal(to_string($7));} if((funciones_types.find(string_check_types)!=funciones_types.end()) && (string_check_types.compare("")!=0) &&(variables_types.find(*$1)!=variables_types.end())){check_types.check_tipos_func(variables_types[*$1],funciones_types[string_check_types]); string_check_types="";} variables[*$1]=$7; if(enfuncion==1){if(locales.find(*$1)!=locales.end()){auto id=new NodoId(*$1); id->nuevaasign(mainstring,locales[*$1],1); fichero<<endl; }else if(globales.find(*$1)!=globales.end()){globales[*$1]=$7; auto id=new NodoId(*$1); id->global(mainstring,*$1); fichero<<endl;}}else if(enfuncion==0){globales[*$1]=$7; nodo.reservaglobales(globreserva,*$1); nodo.declaraglobales(globdeclara,*$1,$7);}}
+		|INT ID '=' {DecOrExp=1;} exp {variables_types[*$2]="int"; if(string_check_types.compare("")==0){$5=check_types.check_literal(to_string($5));}if((funciones_types.find(string_check_types)!=funciones_types.end()) && (string_check_types.compare("")!=0) &&(variables_types.find(*$2)!=variables_types.end())){check_types.check_tipos_func(variables_types[*$2],funciones_types[string_check_types]); string_check_types="";} variables[*$2]=$5; if(enfuncion==1){auto id=new NodoId(*$1); id->nuevaasign(mainstring,contadorlocales,1); locales[*$2]=contadorlocales;fichero<<endl; contadorlocales++;}else if(enfuncion==0){globales[*$2]=$5; nodo.reservaglobales(globreserva,*$2); nodo.declaraglobales(globdeclara,*$2,$5);}}
+		|INT ID '[' NUM ']' {int i; for(i=0;i<$4;i++){string cad=*$2+"["+to_string(i)+"]"; variables[cad]=0;if(enfuncion==1){ locales[cad]=contadorlocales; contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,cad);}}}
 		|INT '*' ID Declespe {}
 		|INT '&' ID Declespe {}
 		|INT '&' ID '=' exp {}
 		|INT '*' ID '=' exp {}
 ;
-Declespe: 
-	|',' Declespe {/*variables[*$2]=0; if(enfuncion==1){ contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,*$2);}*/}
-	|ID { variables[*$1]=0; if(enfuncion==1){ contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,*$1);}}
-	| '&' ID
-	| '*' ID
+Declespe: {}
+	|',' Declespe {}
+	|ID { variables_types[*$1]="int";variables[*$1]=0; if(enfuncion==1){ contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,*$1);}}
+	| '&' ID {variables_types[*$2]="int";} //Pongo directamente int porque da igual el &
+	| '*' ID {variables_types[*$2]="int";} //Pongo directamente int porque da igual el *
 ;
 PRINTF: PRINT  cadena  ','{enllamada=1;} dibuj ')' {string s=*$2;  contadorliberaespacio++;  nodo.strings(stringtotales,contadorstrings,s); print.escribe(mainstring,contadorstrings,contadorliberaespacio, cadforprintf);  cadforprintf=""; contadorstrings=1+contadorstrings;contadorliberaespacio=0; enllamada=0;}
 	|PRINT   cadena  ')' {string s=*$2;  contadorliberaespacio++; nodo.strings(stringtotales,contadorstrings,s); print.escribe(mainstring,contadorstrings,contadorliberaespacio, ""); contadorliberaespacio=0; contadorstrings=1+contadorstrings;}
 ;
 dibuj: 	{$$=0;}
-	| dibuj ',' exp{/*int a=variables[*$3]; IDS.push_back(a); $$=1; print.insertar(cadforprintf,*$3);*/ contadorliberaespacio++;}
-	| exp {/*int a=variables[*$1]; IDS.push_back(a); $$=1; print.insertar(cadforprintf,*$1);*/  contadorliberaespacio++;}
+	| dibuj ',' exp{contadorliberaespacio++;}
+	| exp {contadorliberaespacio++;}
 ;
 SCANF: SCAN  cadena  ',' espe ')' {string s=*$2; string devolver=imprimir(s); contadorliberaespacio++; nodo.strings(stringtotales,contadorstrings,s); scan.escribe(mainstring,contadorstrings,contadorliberaespacio, cadforscanf);contadorliberaespacio=0; contadorstrings=1+contadorstrings; cadforscanf="";}
 	|SCAN  cadena  ')'{string s=*$2; string devolver=imprimir(s); contadorliberaespacio++; nodo.strings(stringtotales,contadorstrings,s); scan.escribe(mainstring,contadorstrings,contadorliberaespacio, ""); contadorliberaespacio=0; contadorstrings=1+contadorstrings; cadforscanf="";}
@@ -292,13 +298,12 @@ term: term {multi.escribepush(mainstring); fichero<<endl; } '*' fact {$$=$1*$4; 
 	|term {divi.escribepush(mainstring); fichero<<endl; } '/' fact {$$=$1/$4;  divi=*(new NodoDiv($1,$4)); divi.escribe(mainstring);  fichero<<endl;}
 	|fact {$$=$1;}
 ;
-fact: NUM {$$=$1; /*if(enllamada==1){call.insertarnum(mainstring,$1);}else */if (enfuncion==1 && retu!=1 ){auto num=new NodoNum($1); num->escribe(mainstring); fichero<<endl;}}
-	|'-' NUM {$$=-$2; /*if(enllamada==1){call.insertarnum(mainstring,-$2);} else*/ if (enfuncion==1 && retu!=1 ){auto num=new NodoNum(-$2); num->escribe(mainstring); fichero<<endl;}}
+fact: NUM {$$=$1;if (enfuncion==1 && retu!=1 ){auto num=new NodoNum($1); num->escribe(mainstring); fichero<<endl;}}
+	|'-' NUM {$$=-$2; if (enfuncion==1 && retu!=1 ){auto num=new NodoNum(-$2); num->escribe(mainstring); fichero<<endl;}}
 	|'(' exp ')' {$$=$2;}
-	|ID {/*varint a=buscar($1); $$=a.nu;*/ $$=variables[*$1];/*if(enllamada==1){if(locales.find(*$1)!=locales.end()){int aux=buscarenmap(*$1,locales); call.insertar(mainstring,aux,1,"");}else if(parametros.find(*$1)!=parametros.end()){int aux=buscarenmap(*$1,parametros); call.insertar(mainstring,aux,2,"");}else if(globales.find(*$1)!=globales.end()){int aux=buscarenmap(*$1,globales);auto id=new NodoId(*$1); call.insertar(mainstring,aux,3,*$1);}
-}else*/ if(enfuncion==1){if(locales.find(*$1)!=locales.end()){int aux=buscarenmap(*$1,locales);auto id=new NodoId(*$1); id->escribe(mainstring,1,aux); fichero<<endl;}else if(parametros.find(*$1)!=parametros.end()){int aux=buscarenmap(*$1,parametros);auto id=new NodoId(*$1); id->escribe(mainstring,2,aux); fichero<<endl;}else if(globales.find(*$1)!=globales.end()){int aux=buscarenmap(*$1,globales);auto id=new NodoId(*$1); id->escribe(mainstring,3,aux);}}
+	|ID { $$=variables[*$1]; if(enfuncion==1){if(locales.find(*$1)!=locales.end()){int aux=buscarenmap(*$1,locales);auto id=new NodoId(*$1); id->escribe(mainstring,1,aux); fichero<<endl;}else if(parametros.find(*$1)!=parametros.end()){int aux=buscarenmap(*$1,parametros);auto id=new NodoId(*$1); id->escribe(mainstring,2,aux); fichero<<endl;}else if(globales.find(*$1)!=globales.end()){int aux=buscarenmap(*$1,globales);auto id=new NodoId(*$1); id->escribe(mainstring,3,aux);}}
 }
-	|CALL{enllamada=1;} especialcall ')' {string cadena=*$1; string aux=cadena.substr(0,cadena.find("(")); aux.erase(std::remove(aux.begin(),aux.end(),' '),aux.end()); enllamada=0; call.escribellamada(mainstring,llamada,aux,contadorllamadas);	contadorllamadas=0; llamada="";}
+	|CALL{enllamada=1;} especialcall ')' {string cadena=*$1; string aux=cadena.substr(0,cadena.find("(")); aux.erase(std::remove(aux.begin(),aux.end(),' '),aux.end()); string_check_types=aux; enllamada=0; call.escribellamada(mainstring,llamada,aux,contadorllamadas);	contadorllamadas=0; llamada="";}
 	| '&' ID {}
 	| '*' ID {}
 ;
@@ -310,16 +315,32 @@ especialcall:
 
 %%
 
+extern FILE* yyin;
 int main() {
- //cout << "Teclee muchas expresiones terminadas en puntoycoma\n";
+//Para realizar programa desde linea de comandos, y terminar programa con "exit"
+/*
+ //cout << "Teclee muchas expresiones terminadas en punto y coma\n";
  fichero.open("a.s",std::fstream::out);
  yyparse();
  fichero.close();
  cout << "Final del programa\n";
  return EXIT_SUCCESS;
-} // fin de main()
+ */
+
+cout << "Leyendo el programa..." << endl;
+	FILE * pt = fopen("program.c", "r" );
+    	yyin = pt;
+	fichero.open("a.s",std::fstream::out);
+ 	yyparse();
+ 	fclose(pt);
+ 	fichero.close();
+	cout << "------- program.c -------\n";
+	cout << "Finaliza la lectura del programa, revise el fichero a.s\n";
+ return EXIT_SUCCESS;
+}
+
 
 int yyerror(const char* msj) {
  cerr << msj << endl;
  return 1;
-} // fin de yyerror()
+}

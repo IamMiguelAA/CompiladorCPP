@@ -168,6 +168,14 @@ namespace Tree {
 		void compara(std::string &,int,int);
 	};
 
+	//Checkeo de tipos
+	class Tipos: public Node{
+	public:
+		Tipos(){}
+		int check_literal(std::string);
+		bool check_tipos_func(std::string, std::string );
+	};
+
 	const int Max = 80;
 	char* esp (int level, bool old, bool ne);
 }

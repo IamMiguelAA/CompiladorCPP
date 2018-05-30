@@ -16,18 +16,18 @@ using namespace std;
 "if"+[(]		{yylval.nombre= new string (yytext); return IF;}
 "else"		{yylval.nombre= new string (yytext); return ELSE;}
 "while"+[(]	{yylval.nombre= new string (yytext); return WHILE;}
-"int"+[a-zA-Z  ]+[(] {yylval.nombre=new string(yytext); return FUNC;}
 [a-zA-Z]+[a-zA-Z]*+[(]	{yylval.nombre=new string(yytext); return CALL;}
 "return"	{yylval.nombre = new string (yytext); return RETURN;}
 "#define"	{yylval.nombre = new string (yytext); return DEFINE;}
 "int"		{yylval.nombre = new string (yytext); return INT;}
+"void"		{yylval.nombre = new string (yytext); return INT;}
 "&&"		{yylval.nombre= new string (yytext); return AND;}
 "||"		{yylval.nombre=new string(yytext); return OR;}
 "float"		{return FLOAT;}
 [0-9]+ 		{yylval.valor = atoi(yytext); return NUM;}
 [a-zA-Z]+[a-zA-Z0-9]*	{yylval.nombre = new string (yytext); return ID;}
 [+*-/();=] 	return *yytext;
-[\"]+[a-zA-Z0-9 =+*%  \- \t \r]*+[\"]	{yylval.nombre=new string(yytext); return cadena;}
+[\"]+[a-zA-Z0-9 =+*%  \- \t \r \:]*+['\\'+"n"]*+[a-zA-Z0-9 =+*%  \- \t \r \:]*+[\"]	{yylval.nombre=new string(yytext); return cadena;}
 "=="		{yylval.nombre= new string (yytext); return Log;}
 "<="		{yylval.nombre= new string (yytext); return Log;}
 ">="		{yylval.nombre= new string (yytext); return Log;}
@@ -41,3 +41,4 @@ using namespace std;
 "]"		return *yytext;
 "&"		return *yytext;
 . 		{cerr << "Error léxico, caracter (" << yytext << ") desconocido\n";}
+<<EOF>> return FEOFF;

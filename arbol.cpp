@@ -302,3 +302,21 @@ void Tree::NodoWhile::compara(string &mainstring,int cont,int contador){
 
 	}
 }
+
+
+//Checkeo de tipos
+
+	int Tree::Tipos::check_literal(string asignando){
+		int resultado;
+		//if(asignando.compare(to_string(atoi(asignando.c_str())))!=0)
+		resultado=atoi(asignando.c_str());
+		return resultado;
+	}
+
+	bool Tree::Tipos::check_tipos_func(std::string elemento, std::string asignando){
+		if(elemento.compare(asignando)!=0){
+			cout<<"Intentando asignar a un "<<elemento<<" una funcion "<<asignando<<"."<<endl; 
+			exit(0);
+		}
+		return 0;
+	}
