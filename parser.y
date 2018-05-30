@@ -81,49 +81,11 @@
 	string llamada="";
 
 
-	//Main Struct
-	struct varint{
-		varint(string *n,int v=0){
-			var=n;
-			nu=v;
-		}
-
-		varint& operator = (varint& a){
-			this->var=a.var;
-			this->nu=a.nu;
-		}
 	
-		varint& modificar(int a){
-			this->nu=a;
-		}
-		string * var;
-		int nu;
-	};
-
-	int si=1;
-	int sino=0;
-
-	vector<varint> variablesenteras;
 	vector<string> auxscanf;
 	vector<int> IDS;
 
-	varint& buscar(string *n){
-		int it=0;
-		bool encontrado=false;
-		vector<varint>::iterator iterador;
-		iterador=variablesenteras.begin();
-		while(iterador!=variablesenteras.end() && encontrado!=true){
-			if(*(variablesenteras[it].var)==*(n)){
-				encontrado=true;
-			}else{
-				iterador++;
-				it++;
-			}
-		}
-		if(encontrado==true){
-		return variablesenteras[it];
-		}
-	}
+	
 
 	string imprimir(string s){
 
@@ -240,9 +202,9 @@ Elsef:  {elses.escribeconti(mainstring,FINALES.back()); ELSES.pop_back(); FINALE
 ;
 
 Declaracion:  INT ID  Declespe  {variables_types[*$2]="int";variables[*$1]=0; if(enfuncion==1){ locales[*$2]=contadorlocales; contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,*$2);}}
-		|ID '=' {DecOrExp=1;} exp {if(string_check_types.compare("")==0){$4=check_types.check_literal(to_string($4));} if((funciones_types.find(string_check_types)!=funciones_types.end()) && (string_check_types.compare("")!=0) &&(variables_types.find(*$1)!=variables_types.end())){check_types.check_tipos_func(variables_types[*$1],funciones_types[string_check_types]); string_check_types="";} variables[*$1]=$4; if(enfuncion==1){if(locales.find(*$1)!=locales.end()){auto id=new NodoId(*$1); id->nuevaasign(mainstring,locales[*$1],1); fichero<<endl; }else if(globales.find(*$1)!=globales.end()){globales[*$1]=$4; auto id=new NodoId(*$1); id->global(mainstring,*$1); fichero<<endl;}}else if(enfuncion==0){globales[*$1]=$4; nodo.reservaglobales(globreserva,*$1); nodo.declaraglobales(globdeclara,*$1,$4);}}
-		|ID '[' NUM ']' '=' {DecOrExp=1;} exp {*$1=*$1+"["+to_string($3)+"]";if(string_check_types.compare("")==0){$7=check_types.check_literal(to_string($7));} if((funciones_types.find(string_check_types)!=funciones_types.end()) && (string_check_types.compare("")!=0) &&(variables_types.find(*$1)!=variables_types.end())){check_types.check_tipos_func(variables_types[*$1],funciones_types[string_check_types]); string_check_types="";} variables[*$1]=$7; if(enfuncion==1){if(locales.find(*$1)!=locales.end()){auto id=new NodoId(*$1); id->nuevaasign(mainstring,locales[*$1],1); fichero<<endl; }else if(globales.find(*$1)!=globales.end()){globales[*$1]=$7; auto id=new NodoId(*$1); id->global(mainstring,*$1); fichero<<endl;}}else if(enfuncion==0){globales[*$1]=$7; nodo.reservaglobales(globreserva,*$1); nodo.declaraglobales(globdeclara,*$1,$7);}}
-		|INT ID '=' {DecOrExp=1;} exp {variables_types[*$2]="int"; if(string_check_types.compare("")==0){$5=check_types.check_literal(to_string($5));}if((funciones_types.find(string_check_types)!=funciones_types.end()) && (string_check_types.compare("")!=0) &&(variables_types.find(*$2)!=variables_types.end())){check_types.check_tipos_func(variables_types[*$2],funciones_types[string_check_types]); string_check_types="";} variables[*$2]=$5; if(enfuncion==1){auto id=new NodoId(*$1); id->nuevaasign(mainstring,contadorlocales,1); locales[*$2]=contadorlocales;fichero<<endl; contadorlocales++;}else if(enfuncion==0){globales[*$2]=$5; nodo.reservaglobales(globreserva,*$2); nodo.declaraglobales(globdeclara,*$2,$5);}}
+		|ID '=' {DecOrExp=1;} exp {if(string_check_types.compare("")==0){$4=check_types.check_literal(to_string($4));} if((funciones_types.find(string_check_types)!=funciones_types.end()) && (string_check_types.compare("")!=0) &&(variables_types.find(*$1)!=variables_types.end())){check_types.check_tipos_func(variables_types[*$1],funciones_types[string_check_types]); string_check_types="";} variables[*$1]=$4; if(enfuncion==1){if(locales.find(*$1)!=locales.end()){auto id=new NodoId(*$1); id->nuevaasign(mainstring,locales[*$1],1);  }else if(globales.find(*$1)!=globales.end()){globales[*$1]=$4; auto id=new NodoId(*$1); id->global(mainstring,*$1); }}else if(enfuncion==0){globales[*$1]=$4; nodo.reservaglobales(globreserva,*$1); nodo.declaraglobales(globdeclara,*$1,$4);}}
+		|ID '[' NUM ']' '=' {DecOrExp=1;} exp {*$1=*$1+"["+to_string($3)+"]";if(string_check_types.compare("")==0){$7=check_types.check_literal(to_string($7));} if((funciones_types.find(string_check_types)!=funciones_types.end()) && (string_check_types.compare("")!=0) &&(variables_types.find(*$1)!=variables_types.end())){check_types.check_tipos_func(variables_types[*$1],funciones_types[string_check_types]); string_check_types="";} variables[*$1]=$7; if(enfuncion==1){if(locales.find(*$1)!=locales.end()){auto id=new NodoId(*$1); id->nuevaasign(mainstring,locales[*$1],1);  }else if(globales.find(*$1)!=globales.end()){globales[*$1]=$7; auto id=new NodoId(*$1); id->global(mainstring,*$1); }}else if(enfuncion==0){globales[*$1]=$7; nodo.reservaglobales(globreserva,*$1); nodo.declaraglobales(globdeclara,*$1,$7);}}
+		|INT ID '=' {DecOrExp=1;} exp {variables_types[*$2]="int"; if(string_check_types.compare("")==0){$5=check_types.check_literal(to_string($5));}if((funciones_types.find(string_check_types)!=funciones_types.end()) && (string_check_types.compare("")!=0) &&(variables_types.find(*$2)!=variables_types.end())){check_types.check_tipos_func(variables_types[*$2],funciones_types[string_check_types]); string_check_types="";} variables[*$2]=$5; if(enfuncion==1){auto id=new NodoId(*$1); id->nuevaasign(mainstring,contadorlocales,1); locales[*$2]=contadorlocales; contadorlocales++;}else if(enfuncion==0){globales[*$2]=$5; nodo.reservaglobales(globreserva,*$2); nodo.declaraglobales(globdeclara,*$2,$5);}}
 		|INT ID '[' NUM ']' {int i; for(i=0;i<$4;i++){string cad=*$2+"["+to_string(i)+"]"; variables[cad]=0;if(enfuncion==1){ locales[cad]=contadorlocales; contadorlocales++;}else if(enfuncion==0){nodo.reservaglobales(globreserva,cad);}}}
 		|INT '*' ID Declespe {}
 		|INT '&' ID Declespe {}
@@ -289,19 +251,19 @@ comparacion: NOT {encomplejo=1;} comparacion {$$=$3;}
 
 
 
-exp: exp{if(enllamada==1){}else{suma.escribepush(mainstring);}fichero<<endl; } '+' term {$$=$1+$4;  suma=*(new NodoSuma($1,$4)); suma.escribe(mainstring); if(enllamada==1){call.insertarnum(mainstring,$1);} fichero<<endl;}
-	|exp{if(enllamada==1){}else{suma.escribepush(mainstring);}fichero<<endl; } '-' term {$$=$1-$4; resta=*(new NodoResta($1,$4)); resta.escribe(mainstring);if(enllamada==1){call.insertarnum(mainstring,$1);} fichero<<endl;}
+exp: exp{if(enllamada==1){}else{suma.escribepush(mainstring);} } '+' term {$$=$1+$4;  suma=*(new NodoSuma($1,$4)); suma.escribe(mainstring); if(enllamada==1){call.insertarnum(mainstring,$1);} }
+	|exp{if(enllamada==1){}else{suma.escribepush(mainstring);} } '-' term {$$=$1-$4; resta=*(new NodoResta($1,$4)); resta.escribe(mainstring);if(enllamada==1){call.insertarnum(mainstring,$1);} }
 	|term	{$$=$1; if(enllamada==1){call.insertarnum(mainstring,$1);}}
 ;
 
-term: term {multi.escribepush(mainstring); fichero<<endl; } '*' fact {$$=$1*$4; multi=*(new NodoMul($1,$4)); multi.escribe(mainstring);   fichero<<endl;}
-	|term {divi.escribepush(mainstring); fichero<<endl; } '/' fact {$$=$1/$4;  divi=*(new NodoDiv($1,$4)); divi.escribe(mainstring);  fichero<<endl;}
+term: term {multi.escribepush(mainstring);  } '*' fact {$$=$1*$4; multi=*(new NodoMul($1,$4)); multi.escribe(mainstring);   }
+	|term {divi.escribepush(mainstring);  } '/' fact {$$=$1/$4;  divi=*(new NodoDiv($1,$4)); divi.escribe(mainstring);  }
 	|fact {$$=$1;}
 ;
-fact: NUM {$$=$1;if (enfuncion==1 && retu!=1 ){auto num=new NodoNum($1); num->escribe(mainstring); fichero<<endl;}}
-	|'-' NUM {$$=-$2; if (enfuncion==1 && retu!=1 ){auto num=new NodoNum(-$2); num->escribe(mainstring); fichero<<endl;}}
+fact: NUM {$$=$1;if (enfuncion==1 && retu!=1 ){auto num=new NodoNum($1); num->escribe(mainstring); }}
+	|'-' NUM {$$=-$2; if (enfuncion==1 && retu!=1 ){auto num=new NodoNum(-$2); num->escribe(mainstring); }}
 	|'(' exp ')' {$$=$2;}
-	|ID { $$=variables[*$1]; if(enfuncion==1){if(locales.find(*$1)!=locales.end()){int aux=buscarenmap(*$1,locales);auto id=new NodoId(*$1); id->escribe(mainstring,1,aux); fichero<<endl;}else if(parametros.find(*$1)!=parametros.end()){int aux=buscarenmap(*$1,parametros);auto id=new NodoId(*$1); id->escribe(mainstring,2,aux); fichero<<endl;}else if(globales.find(*$1)!=globales.end()){int aux=buscarenmap(*$1,globales);auto id=new NodoId(*$1); id->escribe(mainstring,3,aux);}}
+	|ID { $$=variables[*$1]; if(enfuncion==1){if(locales.find(*$1)!=locales.end()){int aux=buscarenmap(*$1,locales);auto id=new NodoId(*$1); id->escribe(mainstring,1,aux); }else if(parametros.find(*$1)!=parametros.end()){int aux=buscarenmap(*$1,parametros);auto id=new NodoId(*$1); id->escribe(mainstring,2,aux); }else if(globales.find(*$1)!=globales.end()){int aux=buscarenmap(*$1,globales);auto id=new NodoId(*$1); id->escribe(mainstring,3,aux);}}
 }
 	|CALL{enllamada=1;} especialcall ')' {string cadena=*$1; string aux=cadena.substr(0,cadena.find("(")); aux.erase(std::remove(aux.begin(),aux.end(),' '),aux.end()); string_check_types=aux; enllamada=0; call.escribellamada(mainstring,llamada,aux,contadorllamadas);	contadorllamadas=0; llamada="";}
 	| '&' ID {}
