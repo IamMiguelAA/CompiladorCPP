@@ -251,10 +251,10 @@ void Tree::NodoComp::especial(string &mainstring,int contador,int cont){
 void Tree::NodoComp::especialWhile(string &mainstring,int contador,int cont){
 	switch(cont){
 		case 1:
-			mainstring+="jumpl	While"+to_string(contador)+"\n";
+			mainstring+="jmp	While"+to_string(contador)+"\n";
 			break;
 		case 2:
-			mainstring+="jumpl	IF"+to_string(contador)+"\n";
+			mainstring+="jmp	IF"+to_string(contador)+"\n";
 			break;
 	}
 }
@@ -265,7 +265,7 @@ void Tree::NodoIF::escribe(string &mainstring,int contador){
 	mainstring+="IF"+to_string(contador)+":\n";
 }
 void Tree::NodoIF::escribefin(string &mainstring,int contador){
-	mainstring+="jumpl	FINAL"+to_string(contador)+"\n";
+	mainstring+="jmp	FINAL"+to_string(contador)+"\n";
 }
 void Tree::NodoELSE::escribe(string &mainstring,int contador){
 	mainstring+="ELSE"+to_string(contador)+":\n";
@@ -277,7 +277,7 @@ void Tree::NodoWhile::escribeini(string &mainstring,int contador){
 	mainstring+="While"+to_string(contador)+":\n";
 }
 void Tree::NodoWhile::escribefin(string &mainstring,int contador,int contador2){
-	mainstring+="jumpl	While"+to_string(contador)+"\nFINAL"+to_string(contador2)+":\n";
+	mainstring+="jmp	While"+to_string(contador)+"\nFINAL"+to_string(contador2)+":\n";
 }
 void Tree::NodoWhile::compara(string &mainstring,int cont,int contador){
 	switch(cont){
