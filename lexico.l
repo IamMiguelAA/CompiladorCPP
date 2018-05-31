@@ -20,7 +20,7 @@ using namespace std;
 "return"	{yylval.nombre = new string (yytext); return RETURN;}
 "#define"	{yylval.nombre = new string (yytext); return DEFINE;}
 "int"		{yylval.nombre = new string (yytext); return INT;}
-"void"		{yylval.nombre = new string (yytext); return INT;}
+"void"		{yylval.nombre = new string (yytext); return VOID;}
 "&&"		{yylval.nombre= new string (yytext); return AND;}
 "||"		{yylval.nombre=new string(yytext); return OR;}
 "float"		{return FLOAT;}
