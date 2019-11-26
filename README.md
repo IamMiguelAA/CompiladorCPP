@@ -15,7 +15,7 @@ Compilador para el lenguaje de programación C++.
 1. Para compilar el compilador realice la accion en terminal:
 
 ```
-sh compilar.sh
+sh compilador.sh
 ```
 
 
